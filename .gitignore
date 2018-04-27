@@ -1,0 +1,25 @@
+# The virtual environment and hidden vagrant folder, python cache folders
+env
+.vagrant
+__pycache__
+
+# Sphinx doc build folder
+doc/build*
+
+# Unittesting & Coverage
+.coverage
+
+# Backup files from vim, emacs and python
+*.pyc
+
+*~
+#*#
+
+# Log files
+*.log
+
+# All the config.py files which contain sensitive information
+config.py
+
+# Google Client ID for Web application JSON
+client_secret.json
