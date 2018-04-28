@@ -1,0 +1,33 @@
+{
+  "name": "Neighborhood-Map",
+  "version": "1.0.0",
+  "description": "The neighborhood map is a single page application featuring a map of a neighborhood. It has extra functionalities including highlighted locations, third party data about those locations and various ways to browse the content.",
+  "private": true,
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tordne/Neighborhood-Map.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tordne/Neighborhood-Map/issues"
+  },
+  "homepage": "https://github.com/tordne/Neighborhood-Map#readme",
+  "devDependencies": {
+    "css-loader": "^0.28.11",
+    "style-loader": "^0.21.0",
+    "webpack": "^4.6.0",
+    "webpack-cli": "^2.0.15"
+  },
+  "dependencies": {
+    "lodash": "^4.17.10"
+  }
+}
