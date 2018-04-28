@@ -23,3 +23,6 @@ config.py
 
 # Google Client ID for Web application JSON
 client_secret.json
+
+# webpack JS node_modules
+node_modules/
