@@ -1,3 +1,4 @@
+import $ from 'jquery';
 
 'use strict';
 
@@ -36,8 +37,11 @@ var Forces = function(data) {
  var ViewModel = function() {
   var self = this;
 
-  var infowindow = new google.maps.InfoWindow({
-    maxwidth: 250,
+  $.ajax({
+    url: "https://data.police.uk/api/forces"
+  })
+    .done(function(data) {
+    console.log(data);
   });
 
  }
