@@ -18,17 +18,15 @@ module.exports = {
   plugins: [
   	new CleanWebpackPlugin(['dist']),
   	new HtmlWebpackPlugin({
+      template: './src/index.html',
   		title: 'Neighborhood Map',
-  		meta: {
-  			viewport: 'width=device-width, initial-scale=1'
-  		}
+      inject: 'head'
   	}),
     new webpack.NamedModulesPlugin(),
     new webpack.HotModuleReplacementPlugin()
   ],
   output: {
     filename: '[name].bundle.js',
-    chunckFilename: '[name].bundle.js',
     path: path.resolve(__dirname, 'dist')
   }
 };
