@@ -48,6 +48,10 @@ p {
 	display: inline-block;
 }
 
+.header > i {
+	cursor: pointer;
+}
+
 .header-menu {
 	height: 24px;
 	width: 24px;
@@ -62,4 +66,33 @@ p {
 	right: 0px;
 	position: absolute;
 	z-index: 1;
+}
+
+/*
+ * Aside
+ *
+ */
+
+aside {
+	position: relative;
+	z-index: 2;
+	background-color: white;
+	width: 95%;
+	max-width: 320px;
+	padding: 5px;
+	box-shadow: 7px 7px 5px rgba(0, 0, 0, 0.35);
+}
+
+.search {
+	height: 34px;
+	margin-bottom: 5px;
+}
+
+#search-text {
+	width: 65%;
+	margin-right: 5px;
+}
+
+#search {
+	width: 25%;
 }

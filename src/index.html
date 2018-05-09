@@ -17,12 +17,22 @@
 </head>
 <body>
   <header class="header">
-    <i id="side-bar-toggle" class="fas fa-bars header-menu"></i>
+    <i id="side-bar-toggle" class="fas fa-bars header-menu" data-bind="click: toggleSidebar"></i>
     <h1>Police Neighborhood Map</h1>
   </header>
   <main class="main-container">
-    <aside>
-
+    <aside data-bind="visible: showSidebar">
+      <section id="search-section">
+        <input id="search-text" class="search" type="text" placeholder="Enter an area">
+        <button id="search" class="search"><i class="fa fa-search"></i></button>
+      </section>
+      <section id="info-section">
+      </section>
+      <section id="neighborhood-section">
+        <ul id="nh-list" data-bind="foreach: $root.forcesList">
+          <li data-bind="text: name"></li>
+        </ul>
+      </section>
     </aside>
     <div id="map"></div>
   </main>
