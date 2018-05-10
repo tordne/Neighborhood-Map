@@ -31,6 +31,8 @@ function initMap() {
 var ViewModel = function() {
   var self = this;
 
+  // Set the currentCenter as an observable
+  self.currentCenter = ko.observable();
   // Hide the sidebar upon loading of the page
   self.showSidebar = ko.observable(false);
   // Observable array with all the areas checked
@@ -47,8 +49,8 @@ var ViewModel = function() {
 
 
   function getPoliceData() {
-    var currentCenter = map.getCenter();
-    locNeighborhood(currentCenter.lat(), currentCenter.lng()).then(
+    self.currentCenter = map.getCenter();
+    locNeighborhood(self.currentCenter.lat(), self.currentCenter.lng()).then(
       (data) => {
         // Get the Neighborhood Boundaries at the hand of police data
         // draw the neighborhood on the map
@@ -107,7 +109,10 @@ var ViewModel = function() {
         self.areas.push(data);
 
         // Get the crime statistics for the current Area
-        getStreetLevelCrime(currentCenter.lat(), currentCenter.lng()).then(
+        getStreetLevelCrime(
+          self.currentCenter.lat(),
+          self.currentCenter.lng()
+          ).then(
           (data) => {
             console.log("getStreetLevelCrime called and crimes logged");
             self.crimes.push(data);
@@ -117,11 +122,13 @@ var ViewModel = function() {
     );
   }
 
-
+  // Add listener to map to pan to single clicked area
   map.addListener('click', function(e) {
     map.panTo(e.latLng);
   });
 
+  // Add listener to map to check if area is known neighborhood and get
+  // the police data if necessary
   map.addListener('idle', function() {
     // set the contained var to false
     var contained = false;
