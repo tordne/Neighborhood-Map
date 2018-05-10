@@ -7,8 +7,6 @@ import {locNeighborhood, getBoundsNeigh, getStreetLevelCrime} from './police';
 /* ==== Global Variables ==== */
 
 var map;
-var areaPolygon;
-var forcesList = ko.observableArray([]);
 var currentCenter = ko.observable();
 
 
@@ -16,7 +14,7 @@ var currentCenter = ko.observable();
 
 function initMap() {
   var mapOptions = {
-    center: {lat: 51.4275898, lng: -0.308368},
+    center: {lat: 51.5006035, lng: -0.1416748},
     zoom: 13,
     mapTypeControl: false,
     streetViewControl: false,
@@ -28,40 +26,6 @@ function initMap() {
 }
 
 
-/* ==== Model Forces ==== */
-
-var Force = function(data) {
-  this.id = ko.observable(data.id);
-  this.name = ko.observable(data.name);
-};
-
-
-/* ==== Model currentNeighborhood ==== */
-
-var currentNeighborhood = function(data) {
-  this.force = ko.observable(data.force);
-  this.neighborhood = ko.observable(data.neighborhood);
-};
-
-
-/* ==== Function Ajax call getForces ==== */
-
-function getForces() {
-  // Send an ajax request to retrieve all the forces
-  $.ajax({
-    url: "https://data.police.uk/api/forces"
-  })
-    .done(function(data) {
-      data.forEach(function(forceItem) {
-        forcesList.push( new Force(forceItem));
-      });
-    });
-}
-
-
-
-
-
 /* ==== ViewModel ==== */
 
 var ViewModel = function() {
@@ -69,24 +33,29 @@ var ViewModel = function() {
 
   // Hide the sidebar upon loading of the page
   self.showSidebar = ko.observable(false);
-  self.bounds = [];
-  self.boundsString = "";
+  // Observable array with all the areas checked
+  self.areas = ko.observableArray();
+  // Array with all the google area polygons
+  self.areaBounds = [];
+  // Array with all the areas crime data
+  self.crimes = [];
 
   // Upon clicking the menu button hide or show the sidebar
   self.toggleSidebar = function() {
     self.showSidebar(!self.showSidebar());
   };
 
-  // Retrieve the lat lng coordinates of the map.
-  var currentCenter = map.getCenter();
-//  console.log(currentCenter);
 
-  locNeighborhood(currentCenter.lat(), currentCenter.lng()).then(
-    (data) => {
-      getBoundsNeigh(data.neighbourhood, data.force).then(
-        (data) => {
+  function getPoliceData() {
+    var currentCenter = map.getCenter();
+    locNeighborhood(currentCenter.lat(), currentCenter.lng()).then(
+      (data) => {
+        // Get the Neighborhood Boundaries at the hand of police data
+        // draw the neighborhood on the map
+        getBoundsNeigh(data.neighbourhood, data.force).then(
+          (data) => {
+            // convert the Neighborhood boundaries, so google can use it
             self.bounds = [];
-            self.boundsString = "";
             for( var i = 0; i < data.length; i++ ) {
               self.bounds.push({
                 lat: +data[i].latitude,
@@ -94,32 +63,93 @@ var ViewModel = function() {
               });
             }
 
-            areaPolygon = new google.maps.Polygon({
+            // Get a random color
+            var color = "#"+('00000'+(Math.random()*
+              (1<<18)|0).toString(16)).slice(-6);
+
+            // create a google polygon with the boundaries
+            var areaPolygon = new google.maps.Polygon({
               paths: self.bounds,
-              strokeColor: '#FF0000',
+              strokeColor: color,
               strokeOpacity: 0.8,
               strokeWeight: 2,
-              fillColor: '#FF0000',
-              fillOpacity: 0.35
+              fillColor: color,
+              fillOpacity: 0.45
             });
 
+            // Add the Google polygon to the areaBounds array
+            self.areaBounds.push(areaPolygon);
+
+            // Draw the areaPolygon onto the map
             areaPolygon.setMap(map);
+
+            // Add a listener to the areaPolygon
+            areaPolygon.addListener('click', function(e) {
+              // Iterate over the areaBounds and check if we clicked
+              // on a known area
+              for(var i = 0; i < self.areaBounds.length; i++) {
+                if(google.maps.geometry.poly.containsLocation(
+                  e.latLng,
+                  self.areaBounds[i]
+                )) {
+                  console.log("area: " + i + " was clicked");
+                  break;
+                }
+              }
+
+              // Pan to the clicked neighborhood
+              map.panTo(e.latLng);
+            });
           }
         );
-        getStreetLevelCrime(currentCenter.lat(), currentCenter.lng());
+
+        // Add the neighborhood to the areas Observable array
+        self.areas.push(data);
+
+        // Get the crime statistics for the current Area
+        getStreetLevelCrime(currentCenter.lat(), currentCenter.lng()).then(
+          (data) => {
+            console.log("getStreetLevelCrime called and crimes logged");
+            self.crimes.push(data);
+          }
+        );
       }
     );
-
-  //console.log(this.curNeigh);
-  //getBoundsNeigh(self.curNeigh.neighborhood, self.curNeigh.force);
+  }
 
 
-  map.addListener('dragend', function() {
-    var currentCenter = map.getCenter();
-    locNeighborhood(currentCenter.lat(), currentCenter.lng());
+  map.addListener('click', function(e) {
+    map.panTo(e.latLng);
   });
 
- };
+  map.addListener('idle', function() {
+    // set the contained var to false
+    var contained = false;
+    // Get the center of the map
+    var newCenter = map.getCenter();
+
+    // Iterate through the areaBounds array and check if we are inside
+    // one of the neighborhoods.
+    for(var i = 0; i < self.areaBounds.length; i++) {
+      if(google.maps.geometry.poly.containsLocation(
+        newCenter,
+        self.areaBounds[i]
+        )) {
+          contained = true;
+          break;
+      }
+    }
+    // If we are not inside any of the neighborhoods, call the
+    // getPoliceData, else reset the contained variable
+    if (contained == false) {
+      getPoliceData();
+      console.log("getPoliceData was called in Idle listener");
+    } else {
+      contained = false;
+      console.log("idle listener was called but no getPoliceData");
+    }
+  });
+};
 
 
 /* ==== Initialize Google Maps ==== */

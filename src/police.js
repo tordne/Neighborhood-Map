@@ -48,6 +48,6 @@ export async function getStreetLevelCrime(lat, lng) {
   }
 
   const data = await response.json();
-  console.log(data);
+  //console.log(data);
   return data;
 }
