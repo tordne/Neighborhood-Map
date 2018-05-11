@@ -83,6 +83,16 @@ aside {
 	box-shadow: 7px 7px 5px rgba(0, 0, 0, 0.35);
 }
 
+#nh-list {
+	height: 200px;
+	overflow: hidden;
+	overflow-y: scroll;
+}
+
+#nh-list > li {
+	cursor: pointer;
+}
+
 .search {
 	height: 34px;
 	margin-bottom: 5px;

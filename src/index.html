@@ -29,8 +29,8 @@
       <section id="info-section">
       </section>
       <section id="neighborhood-section">
-        <ul id="nh-list" data-bind="foreach: $root.forcesList">
-          <li data-bind="text: name"></li>
+        <ul id="nh-list" data-bind="foreach: areas">
+          <li data-bind="text: force + ' ' + neighbourhood, click:$parent.moveTo"></li>
         </ul>
       </section>
     </aside>

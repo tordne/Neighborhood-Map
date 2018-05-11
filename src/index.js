@@ -37,6 +37,8 @@ var ViewModel = function() {
   self.showSidebar = ko.observable(false);
   // Observable array with all the areas checked
   self.areas = ko.observableArray();
+  // Obsevable current area index number
+  self.currentAreaIndex = ko.observable();
   // Array with all the google area polygons
   self.areaBounds = [];
   // Array with all the areas crime data
@@ -121,6 +123,30 @@ var ViewModel = function() {
       }
     );
   }
+
+
+  // When clicked on a list item moveTo this area
+  this.moveTo = function(item, event) {
+    // Get the context of the list item clicked
+    var context = ko.contextFor(event.target);
+    self.currentAreaIndex = context.$index();
+
+    var area = self.areaBounds[self.currentAreaIndex];
+    var bounds = new google.maps.LatLngBounds();
+
+    //iterate over the paths
+    area.latLngs.getArray().forEach(function(path){
+      //iterate over the points in the path
+      path.getArray().forEach(function(latLng){
+        //extend the bounds
+        bounds.extend(latLng);
+      });
+    });
+
+    //now use the bounds
+    map.fitBounds(bounds);
+  };
+
 
   // Add listener to map to pan to single clicked area
   map.addListener('click', function(e) {
