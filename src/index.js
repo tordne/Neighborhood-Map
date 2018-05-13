@@ -7,7 +7,6 @@ import {locNeighborhood, getBoundsNeigh, getStreetLevelCrime} from './police';
 /* ==== Global Variables ==== */
 
 var map;
-var currentCenter = ko.observable();
 
 
 /* ==== Callback to Google Map API ==== */
@@ -21,7 +20,7 @@ function initMap() {
     rotateControl: false,
     fullscreenControl: false
   };
-
+  console.log("initMap executed");
   map = new google.maps.Map(document.getElementById('map'), mapOptions);
 }
 
@@ -30,6 +29,23 @@ function initMap() {
 
 var ViewModel = function() {
   var self = this;
+
+  // Array of all the years available
+  self.allYears = ko.observableArray();
+    // Array of all the years available
+  self.allMonths = ko.observableArray();
+  setDate();
+  // Set the current year
+  self.policeYear = ko.observable(self.currentYear);
+  self.policeYear.subscribe(function(){
+    clearNeighborhoods();
+  }, this);
+  // Set the current month
+  self.policeMonth = ko.observable(self.currentMonth);
+  self.policeMonth.subscribe(function(){
+    clearNeighborhoods();
+  }, this);
+
 
   // Set the currentCenter as an observable
   self.currentCenter = ko.observable();
@@ -48,6 +64,53 @@ var ViewModel = function() {
   self.toggleSidebar = function() {
     self.showSidebar(!self.showSidebar());
   };
+
+  function clearNeighborhoods() {
+    console.log("clearNeighborhoods function called");
+    // Clear the crimes and area arrays.
+    self.crimes = [];
+    self.areas.destroyAll();
+    // Check if polygons were drawn and unset first and then empty the
+    // array. If areas were defined, getPoliceData for the currentcenter
+    if (typeof self.areaBounds !== 'undefined' && self.areaBounds.length > 0) {
+      console.log("There were areas defined");
+      for (var i = 0; i < self.areaBounds.length; i++) {
+        self.areaBounds[i].setMap(null);
+      }
+      self.areaBounds = [];
+      getPoliceData();
+    } else {
+      self.areaBounds = [];
+    }
+  }
+
+  function setDate() {
+    console.log("setDate executed");
+    var d = new Date();
+    self.currentYear = d.getUTCFullYear();
+    self.currentMonth = d.getUTCMonth();
+
+    if (self.currentMonth == 1) {
+      self.currentYear -= 1;
+      self.currentMonth = 12;
+    } else if (self.currentMonth == 0) {
+      self.currentYear -= 1;
+      self.currentMonth = 11;
+    } else {
+      self.currentMonth -=1;
+    }
+
+    // Set a list of all the years available
+    for (var i = 2015; i <= self.currentYear; i++) {
+      self.allYears.push(i);
+    }
+
+    // Set a list of all the months available
+    for (var i = 1; i <= 12; i++) {
+      var month = ('0' + i).slice(-2);
+      self.allMonths.push(month);
+    }
+  }
 
 
   function getPoliceData() {
@@ -113,7 +176,9 @@ var ViewModel = function() {
         // Get the crime statistics for the current Area
         getStreetLevelCrime(
           self.currentCenter.lat(),
-          self.currentCenter.lng()
+          self.currentCenter.lng(),
+          self.policeYear(),
+          self.policeMonth()
           ).then(
           (data) => {
             console.log("getStreetLevelCrime called and crimes logged");

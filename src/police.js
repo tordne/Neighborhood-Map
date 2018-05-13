@@ -37,12 +37,12 @@ export async function getBoundsNeigh(neighborhood, force) {
 
 /* ==== Functoin Ajax call get Street Level Crime ==== */
 
-export async function getStreetLevelCrime(lat, lng) {
+export async function getStreetLevelCrime(lat, lng, year, month) {
   let response;
   try {
     response = await fetch(
       `https://data.police.uk/api/crimes-street/all-crime?lat=` + lat +
-      `&lng=` + lng + `&date=2018-01`);
+      `&lng=` + lng + `&date=` + year + `-` + month);
   } catch(e) {
     console.log("Problem loading data. Status code: " + response.status);
   }

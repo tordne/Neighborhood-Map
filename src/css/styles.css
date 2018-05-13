@@ -83,18 +83,20 @@ aside {
 	box-shadow: 7px 7px 5px rgba(0, 0, 0, 0.35);
 }
 
-#nh-list {
-	height: 200px;
-	overflow: hidden;
-	overflow-y: scroll;
+/* Date area */
+
+#date > h3, select {
+	display: inline-block;
+	height: 34px;
+	margin-bottom: 5px;
+	width: 24%;
 }
 
-#nh-list > li {
-	cursor: pointer;
-}
+/* Search area */
 
 .search {
 	height: 34px;
+	vertical-align: middle;
 	margin-bottom: 5px;
 }
 
@@ -105,4 +107,16 @@ aside {
 
 #search {
 	width: 25%;
+}
+
+/* Neighborhood list */
+
+#nh-list {
+	height: 200px;
+	overflow: hidden;
+	overflow-y: scroll;
+}
+
+#nh-list > li {
+	cursor: pointer;
 }

@@ -22,12 +22,22 @@
   </header>
   <main class="main-container">
     <aside data-bind="visible: showSidebar">
+      <section id="date">
+        <h3>Year: </h3>
+        <select class="" data-bind="options: allYears, value: policeYear" size="1"></select>
+        <h3>Month: </h3>
+        <select class="" data-bind="options: allMonths, value: policeMonth" size="1"></select>
+      </section>
+      <hr>
       <section id="search-section">
         <input id="search-text" class="search" type="text" placeholder="Enter an area">
         <button id="search" class="search"><i class="fa fa-search"></i></button>
       </section>
+      <hr>
       <section id="info-section">
+        <span data-bind="text: policeYear"></span>
       </section>
+      <hr>
       <section id="neighborhood-section">
         <ul id="nh-list" data-bind="foreach: areas">
           <li data-bind="text: force + ' ' + neighbourhood, click:$parent.moveTo"></li>
