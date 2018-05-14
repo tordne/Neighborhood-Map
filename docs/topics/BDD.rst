@@ -47,9 +47,33 @@ When the page loads, the following actions should be taken
 	* Check which area is in the center of the page and retrieve the following from the police database:
 		* boundaries of the area
 		* All the police stations within the area
-		* Get a list of total crimes commited within the boundaries
-		* Get a list of all the neighbourhoods for that police force.
-	* Display the boundaries of the area and display the name of the force and area in the middle of the boundary
-	* A scrollable list of all the neighbourhoods within the current police force should be shown in the side bar
-	* A summary of all the different crimes should be shown for the latest month.
+		* Create a list of total crimes commited within the boundaries
+		* Add the neighbourhood to the list
+	* Display the boundaries of the area
+
+Neighborhood Selection
+^^^^^^^^^^^^^^^^^^^^^^
+The user can click on neighborhoods which are already defined or not:
+
+Already defined:
+++++++++++++++++
+
+	* Pan and zoom to the area
+	* Change the neighborhood info in the sidebar
+
+Not defined:
+++++++++++++
+
+	* Center map to the location clicked
+	* Retrieve information from police database
+	* Draw neighborhood polygon
+	* Add neighborhood to the list in sidebar
+	* Show crime info in the sidebar
+
+Change of Date
+^^^^^^^^^^^^^^
+Unset all the map polygons and erase all the crime, and police neigborhood data.
+Get police data for the current map center, with the defined date range.
+
+
 
