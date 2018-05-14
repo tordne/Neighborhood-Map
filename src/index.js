@@ -65,6 +65,7 @@ var ViewModel = function() {
     self.showSidebar(!self.showSidebar());
   };
 
+  // Clear all the neighborhoods and police data
   function clearNeighborhoods() {
     console.log("clearNeighborhoods function called");
     // Clear the crimes and area arrays.
@@ -84,6 +85,7 @@ var ViewModel = function() {
     }
   }
 
+  // Retrieve the curren date and set the year and month arrays.
   function setDate() {
     console.log("setDate executed");
     var d = new Date();
@@ -146,6 +148,7 @@ var ViewModel = function() {
 
             // Add the Google polygon to the areaBounds array
             self.areaBounds.push(areaPolygon);
+            self.currentAreaIndex(self.areaBounds.length - 1);
 
             // Draw the areaPolygon onto the map
             areaPolygon.setMap(map);
@@ -159,6 +162,7 @@ var ViewModel = function() {
                   e.latLng,
                   self.areaBounds[i]
                 )) {
+                  self.currentAreaIndex(i);
                   console.log("area: " + i + " was clicked");
                   break;
                 }
