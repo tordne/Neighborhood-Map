@@ -12,6 +12,10 @@ h1 {
 	font-family: 'Fjalla One';
 }
 
+h3 {
+	margin: 0px;
+}
+
 p {
 	line-height: 1.5;
 }
@@ -109,10 +113,27 @@ aside {
 	width: 25%;
 }
 
+/* Info area */
+
+.info > h3, span {
+	display: inline-block;
+}
+
+#crime-list {
+	height: 110px;
+	margin-top: 5px;
+	overflow: hidden;
+	overflow-y: scroll;
+}
+
+#crime-list > li {
+	cursor: pointer;
+}
+
 /* Neighborhood list */
 
 #nh-list {
-	height: 200px;
+	height: 50px;
 	overflow: hidden;
 	overflow-y: scroll;
 }

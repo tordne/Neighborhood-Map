@@ -8,6 +8,11 @@ import {locNeighborhood, getBoundsNeigh, getStreetLevelCrime} from './police';
 
 var map;
 
+var crimeCat = function(data) {
+  this.category = ko.observable(data.category);
+  this.count = ko.observable(data.count);
+};
+
 
 /* ==== Callback to Google Map API ==== */
 
@@ -23,7 +28,6 @@ function initMap() {
   console.log("initMap executed");
   map = new google.maps.Map(document.getElementById('map'), mapOptions);
 }
-
 
 /* ==== ViewModel ==== */
 
@@ -47,14 +51,21 @@ var ViewModel = function() {
   }, this);
 
 
-  // Set the currentCenter as an observable
-  self.currentCenter = ko.observable();
   // Hide the sidebar upon loading of the page
   self.showSidebar = ko.observable(false);
+
+  // Set the currentCenter as an observable
+  self.currentCenter = "";
+  // Obsevable current area index number
+  self.currentAreaIndex = "";
+
+  self.currentForce = ko.observable();
+  self.currentNeighborhood = ko.observable();
+  self.currentTotalCrimes = ko.observable();
+  self.currentCrimeCategories = ko.observableArray([]);
+
   // Observable array with all the areas checked
   self.areas = ko.observableArray();
-  // Obsevable current area index number
-  self.currentAreaIndex = ko.observable();
   // Array with all the google area polygons
   self.areaBounds = [];
   // Array with all the areas crime data
@@ -114,6 +125,29 @@ var ViewModel = function() {
     }
   }
 
+  // Get Set the crimedata in the sidebar
+  function setCrimeData() {
+    var index = self.currentAreaIndex;
+
+    // Set the title with the force and neighborhood
+    self.currentForce(self.areas()[index].force);
+    self.currentNeighborhood(self.areas()[index].neighbourhood);
+
+    // Set total crimes to 0;
+    var total = 0;
+    self.currentCrimeCategories.removeAll();
+
+    // Iterate over the crimes and push it to the UI.
+    self.crimes[index].forEach(function(item) {
+      self.currentCrimeCategories.push(item);
+
+      // For each crime add to the totals
+      total += item.count;
+    });
+    // Set the total crimes on the UI
+    self.currentTotalCrimes(total);
+  }
+
 
   function getPoliceData() {
     self.currentCenter = map.getCenter();
@@ -148,7 +182,7 @@ var ViewModel = function() {
 
             // Add the Google polygon to the areaBounds array
             self.areaBounds.push(areaPolygon);
-            self.currentAreaIndex(self.areaBounds.length - 1);
+            self.currentAreaIndex = self.areaBounds.length - 1;
 
             // Draw the areaPolygon onto the map
             areaPolygon.setMap(map);
@@ -162,7 +196,7 @@ var ViewModel = function() {
                   e.latLng,
                   self.areaBounds[i]
                 )) {
-                  self.currentAreaIndex(i);
+                  self.currentAreaIndex = i;
                   console.log("area: " + i + " was clicked");
                   break;
                 }
@@ -187,6 +221,7 @@ var ViewModel = function() {
           (data) => {
             console.log("getStreetLevelCrime called and crimes logged");
             self.crimes.push(data);
+            setCrimeData();
           }
         );
       }
@@ -198,6 +233,7 @@ var ViewModel = function() {
   this.moveTo = function(item, event) {
     // Get the context of the list item clicked
     var context = ko.contextFor(event.target);
+
     self.currentAreaIndex = context.$index();
 
     var area = self.areaBounds[self.currentAreaIndex];
@@ -248,6 +284,7 @@ var ViewModel = function() {
       console.log("getPoliceData was called in Idle listener");
     } else {
       contained = false;
+      setCrimeData();
       console.log("idle listener was called but no getPoliceData");
     }
   });

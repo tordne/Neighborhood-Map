@@ -35,7 +35,18 @@
       </section>
       <hr>
       <section id="info-section">
-        <span data-bind="text: policeYear"></span>
+        <div class="info">
+          <h3>Force: </h3>
+          <span data-bind="text: currentForce"></span>
+          <h3>Neighborhood: </h3>
+          <span data-bind="text: currentNeighborhood"></span>
+        </div>
+        <div class="info">
+          <h3>There was a total of: <span data-bind="text:currentTotalCrimes"></span> crimes</h3>
+        </div>
+        <ul id="crime-list" data-bind="foreach: currentCrimeCategories">
+          <li data-bind="text: category + ' ' +  count"></li>
+        </ul>
       </section>
       <hr>
       <section id="neighborhood-section">

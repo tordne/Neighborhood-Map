@@ -48,6 +48,29 @@ export async function getStreetLevelCrime(lat, lng, year, month) {
   }
 
   const data = await response.json();
-  //console.log(data);
-  return data;
+
+  // Create an empty array to get all info that is necessary
+  var crimes = [];
+
+  // Iterate over the retrieved data and save it in the crimes array
+  data.forEach(function(crime){
+    // Check if the item.category is in the crimes array
+    var match = ko.utils.arrayFirst(
+      crimes, function(item) {
+        return crime.category === item.category;
+      }
+    );
+
+    // If there was no match, add the new category with a starting
+    // count of 1
+    // If there was a match increase the count with 1
+    if (!match) {
+      var row = {category: crime.category, count: 1};
+      crimes.push(row);
+    } else {
+      match.count += 1;
+    }
+  });
+  // return the crimes array
+  return crimes;
 }
