@@ -7,6 +7,8 @@ import {locNeighborhood, getBoundsNeigh, getStreetLevelCrime} from './police';
 /* ==== Global Variables ==== */
 
 var map;
+var service;
+var infowindow;
 
 var crimeCat = function(data) {
   this.category = ko.observable(data.category);
@@ -55,7 +57,7 @@ var ViewModel = function() {
   self.showSidebar = ko.observable(false);
 
   // Set the currentCenter as an observable
-  self.currentCenter = "";
+  self.currentCenter = {};
   // Obsevable current area index number
   self.currentAreaIndex = "";
 
@@ -75,6 +77,74 @@ var ViewModel = function() {
   self.toggleSidebar = function() {
     self.showSidebar(!self.showSidebar());
   };
+
+
+  // Autocomplete for the search box
+  var autocomplete = new google.maps.places.Autocomplete(
+    document.getElementById('search-text'));
+
+  // Restrict the autocomplete to the UK
+  autocomplete.setComponentRestrictions({'country': 'gb'});
+  // Bias the boundaries within the map for the zoom to area text.
+  autocomplete.bindTo('bounds', map);
+
+  // Add eventListeners to the area search input
+  self.areaToZoom = ko.observable("");
+
+  self.zoomToArea = function() {
+    if (self.areaToZoom() != "") {
+      var geocoder = new google.maps.Geocoder();
+
+      geocoder.geocode({
+        address: self.areaToZoom(),
+        componentRestrictions: {'country': 'gb'}
+        }, function(result, status) {
+          if (status == google.maps.GeocoderStatus.OK) {
+            map.setCenter(result[0].geometry.location);
+            map.setZoom(13);
+            self.showSidebar(false);
+          } else {
+            window.alert("Could not find the location, " +
+              "try a more specific area");
+          }
+        });
+    }
+  };
+
+
+  function getPoliceStations() {
+    console.log("Call the getPoliceStations Function");
+
+    var bounds = map.getBounds();
+    //Get all the nearby police stations and give them markers.
+    service = new google.maps.places.PlacesService(map);
+    service.nearbySearch({
+      bounds: bounds,
+      type: ['police']
+    }, callback);
+
+    function callback(results, status) {
+      console.log(status);
+      if (status == google.maps.places.PlacesServiceStatus.OK) {
+        console.log(results);
+        for (var i = 0; i < results.length; i++) {
+          var place = results[i];
+          createMarker(results[i]);
+        }
+      }
+    }
+
+    function createMarker(place) {
+        var placeLoc = place.geometry.location;
+        var marker = new google.maps.Marker({
+          map: map,
+          position: place.geometry.location
+        });
+      }
+
+  }
+
+
 
   // Clear all the neighborhoods and police data
   function clearNeighborhoods() {
@@ -125,7 +195,7 @@ var ViewModel = function() {
     }
   }
 
-  // Get Set the crimedata in the sidebar
+  // Set the crimedata in the sidebar
   function setCrimeData() {
     var index = self.currentAreaIndex;
 
@@ -149,6 +219,7 @@ var ViewModel = function() {
   }
 
 
+  // Get all Police Data for the current map center
   function getPoliceData() {
     self.currentCenter = map.getCenter();
     locNeighborhood(self.currentCenter.lat(), self.currentCenter.lng()).then(
@@ -264,13 +335,13 @@ var ViewModel = function() {
     // set the contained var to false
     var contained = false;
     // Get the center of the map
-    var newCenter = map.getCenter();
+    self.currentCenter = map.getCenter();
 
     // Iterate through the areaBounds array and check if we are inside
     // one of the neighborhoods.
     for(var i = 0; i < self.areaBounds.length; i++) {
       if(google.maps.geometry.poly.containsLocation(
-        newCenter,
+        self.currentCenter,
         self.areaBounds[i]
         )) {
           contained = true;
@@ -287,6 +358,7 @@ var ViewModel = function() {
       setCrimeData();
       console.log("idle listener was called but no getPoliceData");
     }
+    getPoliceStations();
   });
 };
 

@@ -30,8 +30,10 @@
       </section>
       <hr>
       <section id="search-section">
-        <input id="search-text" class="search" type="text" placeholder="Enter an area">
-        <button id="search" class="search"><i class="fa fa-search"></i></button>
+        <form data-bind="submit: zoomToArea">
+          <input id="search-text" class="search" type="text" data-bind='value: areaToZoom, valueUpdate: "afterkeydown"' placeholder="Enter an area">
+          <button id="search" class="search" type="submit"><i class="fa fa-search"></i></button>
+        </form>
       </section>
       <hr>
       <section id="info-section">
