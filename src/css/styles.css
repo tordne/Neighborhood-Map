@@ -141,3 +141,21 @@ aside {
 #nh-list > li {
 	cursor: pointer;
 }
+
+/* Info Window */
+
+.open {
+	color: #001ba3;
+}
+
+.closed {
+	color: #de0000;
+}
+
+.window-sub {
+	margin: 10px 0px 10px;
+}
+
+.window-text {
+	margin: 5px 0px 5px;
+}

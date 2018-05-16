@@ -126,6 +126,8 @@ var ViewModel = function() {
       self.markers = [];
     }
 
+    // set the largeInfowindow
+    var largeInfowindow = new google.maps.InfoWindow();
 
     // Set the bounds of the map
     var bounds = map.getBounds();
@@ -140,6 +142,7 @@ var ViewModel = function() {
       if (status == google.maps.places.PlacesServiceStatus.OK) {
         for (var i = 0; i < results.length; i++) {
           var place = results[i];
+          //console.log(place);
           createMarker(place);
         }
       }
@@ -164,7 +167,7 @@ var ViewModel = function() {
 
       // Onclick event to open infowindow
       marker.addListener('click', function() {
-        populateInfoWindow(this, largeInfoWindow);
+        populateInfoWindow(this, largeInfowindow, place);
       });
 
       // On hover bounce the marker
@@ -174,6 +177,64 @@ var ViewModel = function() {
       marker.addListener('mouseout', function() {
         this.setAnimation(null);
       });
+    }
+
+    function populateInfoWindow(marker, infowindow, place) {
+      // Check if the infowindow is not already opened on this marker
+      if (infowindow.marker != marker) {
+        // Clear the infowindow
+        infowindow.setContent('');
+        infowindow.marker = marker;
+
+        // Make sure the marker property is cleared if the infowindow
+        // is closed.
+        infowindow.addListener('closeclick', function() {
+          infowindow.marker = null;
+        });
+
+        var request = {
+          placeId: place.place_id
+        };
+
+        // Retrieve placedetails from google
+        service.getDetails(request, function (details, status) {
+          if (status == google.maps.places.PlacesServiceStatus.OK) {
+            var content = "";
+
+            if (details.name != undefined) {
+              content += '<h3>' + details.name + '</h3>';
+            }
+
+            if (details.opening_hours != undefined &&
+              details.opening_hours.open_now != undefined ) {
+              if (details.opening_hours.open_now) {
+                content += '<h3>Station is now <span class="open">open!' +
+                '</span></h3>';
+              } else {
+                content += '<h3>Station is now <span class"closed">closed!' +
+                '</span></h3>';
+              }
+            }
+
+            if (details.formatted_address != undefined) {
+              content += '<h4 class="window-sub">Address:</h4>';
+              content += '<p class="window-text">' +
+              details.formatted_address + '</p>';
+            }
+
+            if (details.opening_hours != undefined &&
+              details.opening_hours.weekday_text != undefined) {
+              var weekdays = details.opening_hours.weekday_text;
+              content += '<h4 class="window-sub">Opening Times:</h4>';
+              for (var i = 0; i < weekdays.length; i++) {
+                content += '<p class="window-text">' + weekdays[i] + '</p>';
+              }
+            }
+            infowindow.setContent(content);
+          }
+        });
+      }
+      infowindow.open(map, marker);
     }
   }
 
