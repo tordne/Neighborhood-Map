@@ -1,5 +1,6 @@
 import $ from 'jquery';
 import {locNeighborhood, getBoundsNeigh, getStreetLevelCrime} from './police';
+import icon from './marker';
 
 'use strict';
 
@@ -72,6 +73,8 @@ var ViewModel = function() {
   self.areaBounds = [];
   // Array with all the areas crime data
   self.crimes = [];
+  // Array with all the google police stations set as markers
+  self.markers = [];
 
   // Upon clicking the menu button hide or show the sidebar
   self.toggleSidebar = function() {
@@ -112,38 +115,67 @@ var ViewModel = function() {
   };
 
 
+  // This function is called to show the local police stations
   function getPoliceStations() {
     console.log("Call the getPoliceStations Function");
 
+    if (self.markers != null) {
+      for (var i = 0; i < self.markers.length; i++) {
+        self.markers[i].setMap(null);
+      }
+      self.markers = [];
+    }
+
+
+    // Set the bounds of the map
     var bounds = map.getBounds();
-    //Get all the nearby police stations and give them markers.
+
+    // Get all the nearby police stations and give them markers.
+    // When successfull iterate over the result and create the Markers
     service = new google.maps.places.PlacesService(map);
     service.nearbySearch({
       bounds: bounds,
       type: ['police']
-    }, callback);
-
-    function callback(results, status) {
-      console.log(status);
+    }, function callback(results, status) {
       if (status == google.maps.places.PlacesServiceStatus.OK) {
-        console.log(results);
         for (var i = 0; i < results.length; i++) {
           var place = results[i];
-          createMarker(results[i]);
+          createMarker(place);
         }
       }
-    }
+    });
 
+    // Take a place parameter and add marker onto location
     function createMarker(place) {
-        var placeLoc = place.geometry.location;
-        var marker = new google.maps.Marker({
-          map: map,
-          position: place.geometry.location
-        });
-      }
+      // Get the marker location
+      var placeLoc = place.geometry.location;
 
+      // Create the marker
+      var marker = new google.maps.Marker({
+        map: map,
+        position: placeLoc,
+        animation: google.maps.Animation.DROP,
+        icon: icon,
+        optimized: false
+      });
+
+      // Push the marker to the markers array
+      self.markers.push(marker);
+
+      // Onclick event to open infowindow
+      marker.addListener('click', function() {
+        populateInfoWindow(this, largeInfoWindow);
+      });
+
+      // On hover bounce the marker
+      marker.addListener('mouseover', function() {
+        this.setAnimation(google.maps.Animation.BOUNCE);
+      });
+      marker.addListener('mouseout', function() {
+        this.setAnimation(null);
+      });
+    }
   }
-
 
 
   // Clear all the neighborhoods and police data
