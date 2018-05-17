@@ -31,7 +31,8 @@ function initMap() {
 
 
 /**
- * Initialize Google Maps
+ * Initialize Google Maps through initMap().
+ * Apply the KO binding for the viewModel.
  *
  */
 window.initApp = function() {

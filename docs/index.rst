@@ -11,3 +11,4 @@ The web app connects to the UK police database API to retrieve information and d
    :caption: Contents:
 
    topics/BDD
+   topics/functions
