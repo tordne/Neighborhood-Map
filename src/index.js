@@ -1,5 +1,9 @@
 import $ from 'jquery';
-import {locNeighborhood, getBoundsNeigh, getStreetLevelCrime} from './police';
+import {
+  locNeighborhood,
+  getBoundsNeigh,
+  getStreetLevelCrime
+} from './police';
 import icon from './marker';
 
 'use strict';
@@ -21,7 +25,10 @@ var crimeCat = function(data) {
 
 function initMap() {
   var mapOptions = {
-    center: {lat: 51.5006035, lng: -0.1416748},
+    center: {
+      lat: 51.5006035,
+      lng: -0.1416748
+    },
     zoom: 13,
     mapTypeControl: false,
     streetViewControl: false,
@@ -39,17 +46,17 @@ var ViewModel = function() {
 
   // Array of all the years available
   self.allYears = ko.observableArray();
-    // Array of all the years available
+  // Array of all the years available
   self.allMonths = ko.observableArray();
   setDate();
   // Set the current year
   self.policeYear = ko.observable(self.currentYear);
-  self.policeYear.subscribe(function(){
+  self.policeYear.subscribe(function() {
     clearNeighborhoods();
   }, this);
   // Set the current month
   self.policeMonth = ko.observable(self.currentMonth);
-  self.policeMonth.subscribe(function(){
+  self.policeMonth.subscribe(function() {
     clearNeighborhoods();
   }, this);
 
@@ -87,7 +94,9 @@ var ViewModel = function() {
     document.getElementById('search-text'));
 
   // Restrict the autocomplete to the UK
-  autocomplete.setComponentRestrictions({'country': 'gb'});
+  autocomplete.setComponentRestrictions({
+    'country': 'gb'
+  });
   // Bias the boundaries within the map for the zoom to area text.
   autocomplete.bindTo('bounds', map);
 
@@ -100,17 +109,19 @@ var ViewModel = function() {
 
       geocoder.geocode({
         address: self.areaToZoom(),
-        componentRestrictions: {'country': 'gb'}
-        }, function(result, status) {
-          if (status == google.maps.GeocoderStatus.OK) {
-            map.setCenter(result[0].geometry.location);
-            map.setZoom(13);
-            self.showSidebar(false);
-          } else {
-            window.alert("Could not find the location, " +
-              "try a more specific area");
-          }
-        });
+        componentRestrictions: {
+          'country': 'gb'
+        }
+      }, function(result, status) {
+        if (status == google.maps.GeocoderStatus.OK) {
+          map.setCenter(result[0].geometry.location);
+          map.setZoom(13);
+          self.showSidebar(false);
+        } else {
+          window.alert("Could not find the location, " +
+            "try a more specific area");
+        }
+      });
     }
   };
 
@@ -197,7 +208,7 @@ var ViewModel = function() {
         };
 
         // Retrieve placedetails from google
-        service.getDetails(request, function (details, status) {
+        service.getDetails(request, function(details, status) {
           if (status == google.maps.places.PlacesServiceStatus.OK) {
             var content = "";
 
@@ -206,20 +217,20 @@ var ViewModel = function() {
             }
 
             if (details.opening_hours != undefined &&
-              details.opening_hours.open_now != undefined ) {
+              details.opening_hours.open_now != undefined) {
               if (details.opening_hours.open_now) {
                 content += '<h3>Station is now <span class="open">open!' +
-                '</span></h3>';
+                  '</span></h3>' + svg;
               } else {
                 content += '<h3>Station is now <span class"closed">closed!' +
-                '</span></h3>';
+                  '</span></h3>';
               }
             }
 
             if (details.formatted_address != undefined) {
               content += '<h4 class="window-sub">Address:</h4>';
               content += '<p class="window-text">' +
-              details.formatted_address + '</p>';
+                details.formatted_address + '</p>';
             }
 
             if (details.opening_hours != undefined &&
@@ -273,7 +284,7 @@ var ViewModel = function() {
       self.currentYear -= 1;
       self.currentMonth = 11;
     } else {
-      self.currentMonth -=1;
+      self.currentMonth -= 1;
     }
 
     // Set a list of all the years available
@@ -323,7 +334,7 @@ var ViewModel = function() {
           (data) => {
             // convert the Neighborhood boundaries, so google can use it
             self.bounds = [];
-            for( var i = 0; i < data.length; i++ ) {
+            for (var i = 0; i < data.length; i++) {
               self.bounds.push({
                 lat: +data[i].latitude,
                 lng: +data[i].longitude
@@ -331,8 +342,8 @@ var ViewModel = function() {
             }
 
             // Get a random color
-            var color = "#"+('00000'+(Math.random()*
-              (1<<18)|0).toString(16)).slice(-6);
+            var color = "#" + ('00000' + (Math.random() *
+              (1 << 18) | 0).toString(16)).slice(-6);
 
             // create a google polygon with the boundaries
             var areaPolygon = new google.maps.Polygon({
@@ -355,11 +366,11 @@ var ViewModel = function() {
             areaPolygon.addListener('click', function(e) {
               // Iterate over the areaBounds and check if we clicked
               // on a known area
-              for(var i = 0; i < self.areaBounds.length; i++) {
-                if(google.maps.geometry.poly.containsLocation(
-                  e.latLng,
-                  self.areaBounds[i]
-                )) {
+              for (var i = 0; i < self.areaBounds.length; i++) {
+                if (google.maps.geometry.poly.containsLocation(
+                    e.latLng,
+                    self.areaBounds[i]
+                  )) {
                   self.currentAreaIndex = i;
                   console.log("area: " + i + " was clicked");
                   break;
@@ -381,7 +392,7 @@ var ViewModel = function() {
           self.currentCenter.lng(),
           self.policeYear(),
           self.policeMonth()
-          ).then(
+        ).then(
           (data) => {
             console.log("getStreetLevelCrime called and crimes logged");
             self.crimes.push(data);
@@ -404,9 +415,9 @@ var ViewModel = function() {
     var bounds = new google.maps.LatLngBounds();
 
     //iterate over the paths
-    area.latLngs.getArray().forEach(function(path){
+    area.latLngs.getArray().forEach(function(path) {
       //iterate over the points in the path
-      path.getArray().forEach(function(latLng){
+      path.getArray().forEach(function(latLng) {
         //extend the bounds
         bounds.extend(latLng);
       });
@@ -432,13 +443,13 @@ var ViewModel = function() {
 
     // Iterate through the areaBounds array and check if we are inside
     // one of the neighborhoods.
-    for(var i = 0; i < self.areaBounds.length; i++) {
-      if(google.maps.geometry.poly.containsLocation(
-        self.currentCenter,
-        self.areaBounds[i]
+    for (var i = 0; i < self.areaBounds.length; i++) {
+      if (google.maps.geometry.poly.containsLocation(
+          self.currentCenter,
+          self.areaBounds[i]
         )) {
-          contained = true;
-          break;
+        contained = true;
+        break;
       }
     }
     // If we are not inside any of the neighborhoods, call the
