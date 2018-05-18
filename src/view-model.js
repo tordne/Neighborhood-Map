@@ -2,7 +2,11 @@ import {
   locNeighborhood,
   getBoundsNeigh,
   getStreetLevelCrime
-} from './police';
+} from './utils/police-api';
+import {
+  disableMapControls,
+  enableMapControls
+} from './utils/map-controls';
 import icon from './marker';
 
 
@@ -293,6 +297,7 @@ export default function ViewModel() {
   // Get all Police Data for the current map center
   function getPoliceData() {
     self.currentCenter = map.getCenter();
+    disableMapControls();
     locNeighborhood(self.currentCenter.lat(), self.currentCenter.lng()).then(
       (data) => {
         // Get the Neighborhood Boundaries at the hand of police data
@@ -364,6 +369,7 @@ export default function ViewModel() {
             console.log("getStreetLevelCrime called and crimes logged");
             self.crimes.push(data);
             setCrimeData();
+            enableMapControls();
           }
         );
       }
@@ -395,10 +401,7 @@ export default function ViewModel() {
   };
 
 
-  // Add listener to map to pan to single clicked area
-  map.addListener('click', function(e) {
-    map.panTo(e.latLng);
-  });
+
 
   // Add listener to map to check if area is known neighborhood and get
   // the police data if necessary
