@@ -9,3 +9,11 @@ When index.html is loaded at the end it will call the googleapis library and wil
 .. js:autofunction:: initApp
 
 .. js:autofunction:: initMap
+
+police.js
+---------
+.. js:autofunction:: locNeighborhood
+
+.. js:autofunction:: getBoundsNeigh
+
+.. js:autofunction:: getStreetLevelCrime
