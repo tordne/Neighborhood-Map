@@ -21,6 +21,11 @@
     <h1>Police Neighborhood Map</h1>
   </header>
   <main>
+    <section class="dialog" data-bind="visible: showDialog">
+      <div class="dialog-box">
+        <p>The police data is loading. Please wait.</p>
+      </div>
+    </section>
     <aside data-bind="visible: showSidebar">
       <section id="date">
         <h3>Year: </h3>

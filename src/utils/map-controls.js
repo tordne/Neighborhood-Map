@@ -34,17 +34,3 @@ export function enableMapControls() {
     map.panTo(e.latLng);
   });
 }
-
-
-/**
- * Display Data Loading text over the map
- *
- * @returns
- */
-function enableOverlayDataLoading() {
-	// Get the bounds of the current viewport
-	let bounds = map.getBounds();
-
-	// Create a polygon over
-
-}
