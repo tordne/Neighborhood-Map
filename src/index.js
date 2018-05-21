@@ -1,5 +1,6 @@
 import $ from 'jquery';
 import ViewModel from './view-model';
+import './css/styles.css';
 
 
 /* ==== Global Variables ==== */
