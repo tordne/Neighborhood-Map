@@ -5,30 +5,41 @@ const webpack = require('webpack');
 
 module.exports = {
   entry: {
-  	app: './src/index.js'
+  	app: ['babel-polyfill', './src/index.js']
   },
   module: {
     rules: [
       {
         test: /\.css$/,
         use: ['style-loader', 'css-loader']
+      },
+      {
+        test: /\.js$/,
+        exclude: /(node_modules|bower_components)/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env'],
+          }
+        }
       }
     ]
   },
   plugins: [
   	new CleanWebpackPlugin(['dist']),
   	new HtmlWebpackPlugin({
+      template: './src/index.html',
   		title: 'Neighborhood Map',
-  		meta: {
-  			viewport: 'width=device-width, initial-scale=1'
-  		}
+      inject: 'head'
   	}),
     new webpack.NamedModulesPlugin(),
     new webpack.HotModuleReplacementPlugin()
   ],
+  externals: {
+    jquery: 'jQuery'
+  },
   output: {
     filename: '[name].bundle.js',
-    chunckFilename: '[name].bundle.js',
     path: path.resolve(__dirname, 'dist')
   }
 };
