@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="eng-GB">
+<head>
+  <meta charset="utf-8">
+  <title>Neighborhood Map</title>
+  <!-- Meta -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Udacity Neighborhood Map">
+  <meta name="author" content="Christopher Berdahl">
+  <!-- Styles -->
+  <link href="https://fonts.googleapis.com/css?family=Fjalla+One|Open+Sans+Condensed:300" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.10/css/all.css" integrity="sha384-+d0P83n9kaQMCwj8F4RJB66tzIwOKmrdb46+porD/OvrJ+37WqIM7UoBtwHO6Nlg" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="../src/css/styles.css">
+  <!-- Java scripts -->
+  <script src="https://code.jquery.com/jquery-3.1.0.js" integrity="sha256-slogkvB1K3VOkzAI8QITxV3VzpOnkeNVsKvtkYLMjfk=" crossorigin="anonymous"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
+<script type="text/javascript" src="app.bundle.js"></script></head>
+<body>
+  <header class="header">
+    <i id="side-bar-toggle" class="fas fa-bars header-menu" data-bind="click: toggleSidebar"></i>
+    <h1>Police Neighborhood Map</h1>
+  </header>
+  <main>
+    <section class="dialog" data-bind="visible: showDialog">
+      <div class="dialog-box">
+        <p>The police data is loading. Please wait.</p>
+      </div>
+    </section>
+    <aside data-bind="visible: showSidebar">
+      <section id="date">
+        <h3>Year: </h3>
+        <select class="" data-bind="options: allYears, value: policeYear" size="1"></select>
+        <h3>Month: </h3>
+        <select class="" data-bind="options: allMonths, value: policeMonth" size="1"></select>
+      </section>
+      <hr>
+      <section id="search-section">
+        <form data-bind="submit: zoomToArea">
+          <input id="search-text" class="search" type="text" data-bind='value: areaToZoom, valueUpdate: "afterkeydown"' placeholder="Enter an area">
+          <button id="search" class="search" type="submit"><i class="fa fa-search"></i></button>
+        </form>
+      </section>
+      <hr>
+      <section id="info-section">
+        <div class="info">
+          <h3>Force: </h3>
+          <span data-bind="text: currentForce"></span>
+          <h3>Neighborhood: </h3>
+          <span data-bind="text: currentNeighborhood"></span>
+        </div>
+        <div class="info">
+          <h3>There was a total of: <span data-bind="text:currentTotalCrimes"></span> crimes</h3>
+        </div>
+        <ul id="crime-list" data-bind="foreach: currentCrimeCategories">
+          <li data-bind="text: category + ' ' +  count"></li>
+        </ul>
+      </section>
+      <hr>
+      <section id="neighborhood-section">
+        <ul id="nh-list" data-bind="foreach: areas">
+          <li data-bind="text: force + ' ' + neighbourhood, click:$parent.moveTo"></li>
+        </ul>
+      </section>
+    </aside>
+    <div id="map"></div>
+  </main>
+    <script src="https://maps.googleapis.com/maps/api/js?libraries=places,geometry,drawing&key=AIzaSyCvJYI51Btcpfq7CIj0XwDLh0FZ4dhSfs0&v=3&callback=initApp"></script>
+</body>
+</html>
