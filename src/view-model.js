@@ -7,6 +7,9 @@ import {
   disableMapControls,
   enableMapControls
 } from './utils/map-controls';
+import {
+  getRandColor
+} from './utils/tools';
 import icon from './marker';
 
 
@@ -34,6 +37,8 @@ export default function ViewModel() {
 
   // Hide the sidebar upon loading of the page
   self.showSidebar = ko.observable(false);
+
+  self.showDialog = ko.observable(false);
 
   // Set the currentCenter as an observable
   self.currentCenter = {};
@@ -297,7 +302,10 @@ export default function ViewModel() {
   // Get all Police Data for the current map center
   function getPoliceData() {
     self.currentCenter = map.getCenter();
+
     disableMapControls();
+    self.showDialog(!self.showDialog());
+
     locNeighborhood(self.currentCenter.lat(), self.currentCenter.lng()).then(
       (data) => {
         // Get the Neighborhood Boundaries at the hand of police data
@@ -306,16 +314,15 @@ export default function ViewModel() {
           (data) => {
             // convert the Neighborhood boundaries, so google can use it
             self.bounds = [];
-            for (var i = 0; i < data.length; i++) {
+            data.forEach((coords) => {
               self.bounds.push({
-                lat: +data[i].latitude,
-                lng: +data[i].longitude
+                lat: +coords.latitude,
+                lng: +coords.longitude
               });
-            }
+            });
 
             // Get a random color
-            var color = "#" + ('00000' + (Math.random() *
-              (1 << 18) | 0).toString(16)).slice(-6);
+            var color = getRandColor();
 
             // create a google polygon with the boundaries
             var areaPolygon = new google.maps.Polygon({
@@ -370,6 +377,7 @@ export default function ViewModel() {
             self.crimes.push(data);
             setCrimeData();
             enableMapControls();
+            self.showDialog(!self.showDialog());
           }
         );
       }
