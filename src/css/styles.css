@@ -108,7 +108,7 @@ p {
  *
  */
 
-aside {
+.aside {
 	position: relative;
 	z-index: 2;
 	background-color: white;
@@ -120,7 +120,7 @@ aside {
 
 /* Date area */
 
-#date > h3, select {
+.date > h3, select {
 	display: inline-block;
 	height: 34px;
 	margin-bottom: 5px;
@@ -135,12 +135,12 @@ aside {
 	margin-bottom: 5px;
 }
 
-#search-text {
+.search-text {
 	width: 65%;
 	margin-right: 5px;
 }
 
-#search {
+.search-button {
 	width: 25%;
 }
 
@@ -150,27 +150,27 @@ aside {
 	display: inline-block;
 }
 
-#crime-list {
+.crime-list {
 	height: 110px;
 	margin-top: 5px;
 	overflow: hidden;
 	overflow-y: scroll;
 }
 
-#crime-list > li {
+.crime-list > li {
 	cursor: pointer;
 }
 
 /* Neighborhood list */
 
-#nh-list {
+.nh-list {
 	height: 30px;
 	margin-top: 5px;
 	overflow: hidden;
 	overflow-y: scroll;
 }
 
-#nh-list > li {
+.nh-list > li {
 	cursor: pointer;
 }
 

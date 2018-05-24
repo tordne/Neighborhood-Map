@@ -25,18 +25,18 @@
         <p>The police data is loading. Please wait.</p>
       </div>
     </section>
-    <aside data-bind="visible: showSidebar">
-      <section id="date">
+    <aside class="aside" data-bind="visible: showSidebar">
+      <section class="date">
         <h3>Year: </h3>
         <select class="" data-bind="options: allYears, value: policeYear" size="1"></select>
         <h3>Month: </h3>
         <select class="" data-bind="options: allMonths, value: policeMonth" size="1"></select>
       </section>
       <hr>
-      <section id="search-section">
+      <section class="search-section">
         <form data-bind="submit: zoomToArea">
-          <input id="search-text" class="search" type="text" data-bind='value: areaToZoom, valueUpdate: "afterkeydown"' placeholder="Enter an area">
-          <button id="search" class="search" type="submit"><i class="fa fa-search"></i></button>
+          <input id="search-text" class="search-text search" type="text" data-bind='value: areaToZoom, valueUpdate: "afterkeydown"' placeholder="Enter an area">
+          <button class="search search-button" type="submit"><i class="fa fa-search"></i></button>
         </form>
       </section>
       <hr>
@@ -50,14 +50,14 @@
         <div class="info">
           <h3>There was a total of: <span data-bind="text:currentTotalCrimes"></span> crimes</h3>
         </div>
-        <ul id="crime-list" data-bind="foreach: currentCrimeCategories">
+        <ul class="crime-list" data-bind="foreach: currentCrimeCategories">
           <li data-bind="text: category + ' ' +  count"></li>
         </ul>
       </section>
       <hr>
       <section id="neighborhood-section">
         <h3>Neighborhoods:</h3>
-        <ul id="nh-list" data-bind="foreach: areas">
+        <ul class="nh-list" data-bind="foreach: areas">
           <li data-bind="text: force + ' ' + neighbourhood, click:$parent.moveTo"></li>
         </ul>
       </section>
