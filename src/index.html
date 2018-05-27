@@ -26,6 +26,26 @@
       </div>
     </section>
     <aside class="aside" data-bind="visible: showSidebar">
+      <nav class="nav-bar">
+        <div class="nav-button">
+          <img inline src=<%= require("./img/calendar.svg") %> />
+        </div>
+        <div class="nav-button">
+          <img inline src=<%= require("./img/search.svg") %> />
+        </div>
+        <div class="nav-button">
+          <img inline src=<%= require("./img/filter.svg") %> />
+        </div>
+        <div class="nav-button">
+          <img inline src=<%= require("./img/gun.svg") %> />
+        </div>
+        <div class="nav-button">
+          <img inline src=<%= require("./img/list.svg") %> />
+        </div>
+        <div class="nav-button">
+          <img inline src=<%= require("./img/police.svg") %> />
+        </div>
+      </nav>
       <section class="date">
         <h3>Year: </h3>
         <select class="" data-bind="options: allYears, value: policeYear" size="1"></select>
