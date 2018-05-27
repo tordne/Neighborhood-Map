@@ -37,8 +37,25 @@ export default function ViewModel() {
 
   // Hide the sidebar upon loading of the page
   self.showSidebar = ko.observable(false);
-
+  // Hide the Dialog showing police loading warning
   self.showDialog = ko.observable(false);
+  // Hide the Date Section
+  self.showDate = ko.observable(false);
+  // Hide the Search Section
+  self.showSearch = ko.observable(false);
+  // Hide the Filter Section
+  self.showFilter = ko.observable(false);
+  // Hide the Crime Section
+  self.showCrime = ko.observable(true);
+  // Hide the List Section
+  self.showList = ko.observable(true);
+  // Hide the Police Section
+  self.showPolice = ko.observable(false);
+  self.showPolice.subscribe(() => {
+    if ( self.markers != undefined || self.markers != null) {
+      self.markers = [];
+    }
+  });
 
   // Set the currentCenter as an observable
   self.currentCenter = {};
@@ -64,6 +81,18 @@ export default function ViewModel() {
     self.showSidebar(!self.showSidebar());
   };
 
+  self.toggleDate = function() {
+    self.showDate(!self.showDate());
+  };
+  self.toggleSearch = function() {
+    self.showSearch(!self.showSearch());
+  };
+  self.toggleFilter = function() {
+    self.showFilter(!self.showFilter());
+  };
+  self.togglePolice = function() {
+    self.showPolice(!self.showPolice());
+  };
 
   // Autocomplete for the search box
   var autocomplete = new google.maps.places.Autocomplete(
