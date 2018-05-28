@@ -146,11 +146,11 @@ export default function ViewModel() {
   }
 
   // Take a place parameter and add marker onto location
-  function createMarker(place, markerList, icon) {
+  function createMarker(placeLoc, markerList, icon, place) {
     // Create the marker
     var marker = new google.maps.Marker({
       map: map,
-      position: place,
+      position: placeLoc,
       animation: google.maps.Animation.DROP,
       icon: icon,
       optimized: false
@@ -159,18 +159,94 @@ export default function ViewModel() {
     // Push the marker to the markers array
     markerList.push(marker);
 
-    // Onclick event to open infowindow
-    marker.addListener('click', function() {
-      populateInfoWindow(this, largeInfowindow, place);
-    });
+    if( icon.name == "police") {
+      // set the largeInfowindow
+      var largeInfowindow = new google.maps.InfoWindow();
 
-    // On hover bounce the marker
-    marker.addListener('mouseover', function() {
-      this.setAnimation(google.maps.Animation.BOUNCE);
-    });
-    marker.addListener('mouseout', function() {
-      this.setAnimation(null);
-    });
+      // Onclick event to open infowindow
+      marker.addListener('click', function() {
+        populateInfoWindow(this, largeInfowindow, place);
+      });
+
+      // On hover bounce the marker
+      marker.addListener('mouseover', function() {
+        this.setAnimation(google.maps.Animation.BOUNCE);
+      });
+      marker.addListener('mouseout', function() {
+        this.setAnimation(null);
+      });
+    } else {
+      marker.addListener('click', function() {
+        this.setAnimation(google.maps.Animation.BOUNCE);
+
+        self.currentAreaIndex = markerList.indexOf(marker);
+
+        self.showSidebar(true);
+
+        focusMapOnArea();
+      });
+    }
+  }
+
+
+  // Function to populate the infoWindow
+  function populateInfoWindow(marker, infowindow, place) {
+    // Check if the infowindow is not already opened on this marker
+    if (infowindow.marker != marker) {
+      // Clear the infowindow
+      infowindow.setContent('');
+      infowindow.marker = marker;
+
+      // Make sure the marker property is cleared if the infowindow
+      // is closed.
+      infowindow.addListener('closeclick', function() {
+        infowindow.marker = null;
+      });
+
+      var request = {
+        placeId: place.place_id
+      };
+
+      // Retrieve placedetails from google
+      service = new google.maps.places.PlacesService(map);
+      service.getDetails(request, function(details, status) {
+        if (status == google.maps.places.PlacesServiceStatus.OK) {
+          var content = "";
+
+          if (details.name != undefined) {
+            content += '<h3>' + details.name + '</h3>';
+          }
+
+          if (details.opening_hours != undefined &&
+            details.opening_hours.open_now != undefined) {
+            if (details.opening_hours.open_now) {
+              content += '<h3>Station is now <span class="open">open!' +
+                '</span></h3>';
+            } else {
+              content += '<h3>Station is now <span class"closed">closed!' +
+                '</span></h3>';
+            }
+          }
+
+          if (details.formatted_address != undefined) {
+            content += '<h4 class="window-sub">Address:</h4>';
+            content += '<p class="window-text">' +
+              details.formatted_address + '</p>';
+          }
+
+          if (details.opening_hours != undefined &&
+            details.opening_hours.weekday_text != undefined) {
+            var weekdays = details.opening_hours.weekday_text;
+            content += '<h4 class="window-sub">Opening Times:</h4>';
+            for (var i = 0; i < weekdays.length; i++) {
+              content += '<p class="window-text">' + weekdays[i] + '</p>';
+            }
+          }
+          infowindow.setContent(content);
+        }
+      });
+    }
+    infowindow.open(map, marker);
   }
 
 
@@ -180,9 +256,6 @@ export default function ViewModel() {
 
     //Remove police Stations if exist
     removePoliceStations();
-
-    // set the largeInfowindow
-    var largeInfowindow = new google.maps.InfoWindow();
 
     // Set the bounds of the map
     var bounds = map.getBounds();
@@ -200,70 +273,12 @@ export default function ViewModel() {
 
           // Get the marker location
           var placeLoc = place.geometry.location;
+
           // create the marker
-          createMarker(placeLoc, self.markers, policeIcon);
+          createMarker(placeLoc, self.markers, policeIcon, place);
         }
       }
     });
-
-
-    function populateInfoWindow(marker, infowindow, place) {
-      // Check if the infowindow is not already opened on this marker
-      if (infowindow.marker != marker) {
-        // Clear the infowindow
-        infowindow.setContent('');
-        infowindow.marker = marker;
-
-        // Make sure the marker property is cleared if the infowindow
-        // is closed.
-        infowindow.addListener('closeclick', function() {
-          infowindow.marker = null;
-        });
-
-        var request = {
-          placeId: place.place_id
-        };
-
-        // Retrieve placedetails from google
-        service.getDetails(request, function(details, status) {
-          if (status == google.maps.places.PlacesServiceStatus.OK) {
-            var content = "";
-
-            if (details.name != undefined) {
-              content += '<h3>' + details.name + '</h3>';
-            }
-
-            if (details.opening_hours != undefined &&
-              details.opening_hours.open_now != undefined) {
-              if (details.opening_hours.open_now) {
-                content += '<h3>Station is now <span class="open">open!' +
-                  '</span></h3>';
-              } else {
-                content += '<h3>Station is now <span class"closed">closed!' +
-                  '</span></h3>';
-              }
-            }
-
-            if (details.formatted_address != undefined) {
-              content += '<h4 class="window-sub">Address:</h4>';
-              content += '<p class="window-text">' +
-                details.formatted_address + '</p>';
-            }
-
-            if (details.opening_hours != undefined &&
-              details.opening_hours.weekday_text != undefined) {
-              var weekdays = details.opening_hours.weekday_text;
-              content += '<h4 class="window-sub">Opening Times:</h4>';
-              for (var i = 0; i < weekdays.length; i++) {
-                content += '<p class="window-text">' + weekdays[i] + '</p>';
-              }
-            }
-            infowindow.setContent(content);
-          }
-        });
-      }
-      infowindow.open(map, marker);
-    }
   }
 
 
@@ -413,8 +428,6 @@ export default function ViewModel() {
 
             // Zoom to the area
             focusMapOnArea();
-            // Add a marker onto the center of the polygon
-            createMarker(self.currentCenter, self.areaMarkers, knifeIcon);
 
             // Get the crime statistics for the current Area
             getStreetLevelCrime(
@@ -427,6 +440,10 @@ export default function ViewModel() {
                 self.crimes.push(data);
                 // SetCrimeData in the sidebar after crimes are logged
                 setCrimeData();
+
+                // Add a marker onto the center of the polygon
+                createMarker(self.currentCenter, self.areaMarkers, knifeIcon);
+
                 // Re-enable the map controls
                 enableMapControls();
                 self.showDialog(!self.showDialog());
