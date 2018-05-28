@@ -61,7 +61,7 @@ export default function ViewModel() {
 
   // Set the currentCenter as an observable
   self.currentCenter = {};
-  // Obsevable current area index number
+  // Current area index number
   self.currentAreaIndex = "";
 
   self.currentForce = ko.observable();
@@ -82,7 +82,7 @@ export default function ViewModel() {
   self.toggleSidebar = function() {
     self.showSidebar(!self.showSidebar());
   };
-
+  // 4 toggle functions connected to the nav menu
   self.toggleDate = function() {
     self.showDate(!self.showDate());
   };
