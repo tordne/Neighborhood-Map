@@ -59,7 +59,7 @@ export default function ViewModel() {
     }
   });
 
-  // Set the currentCenter as an observable
+  // Set the currentCenter.
   self.currentCenter = {};
   // Current area index number
   self.currentAreaIndex = "";
@@ -77,6 +77,8 @@ export default function ViewModel() {
   self.crimes = [];
   // Array with all the google police stations set as markers
   self.markers = [];
+  // Array with all the area markers
+  self.areaMarkers = [];
 
   // Upon clicking the menu button hide or show the sidebar
   self.toggleSidebar = function() {
@@ -142,6 +144,34 @@ export default function ViewModel() {
     }
   }
 
+  // Take a place parameter and add marker onto location
+  function createMarker(place, markerList) {
+    // Create the marker
+    var marker = new google.maps.Marker({
+      map: map,
+      position: place,
+      animation: google.maps.Animation.DROP,
+      icon: icon,
+      optimized: false
+    });
+
+    // Push the marker to the markers array
+    markerList.push(marker);
+
+    // Onclick event to open infowindow
+    marker.addListener('click', function() {
+      populateInfoWindow(this, largeInfowindow, place);
+    });
+
+    // On hover bounce the marker
+    marker.addListener('mouseover', function() {
+      this.setAnimation(google.maps.Animation.BOUNCE);
+    });
+    marker.addListener('mouseout', function() {
+      this.setAnimation(null);
+    });
+  }
+
 
   // This function is called to show the local police stations
   function getPoliceStations() {
@@ -166,42 +196,15 @@ export default function ViewModel() {
       if (status == google.maps.places.PlacesServiceStatus.OK) {
         for (var i = 0; i < results.length; i++) {
           var place = results[i];
-          //console.log(place);
-          createMarker(place);
+
+          // Get the marker location
+          var placeLoc = place.geometry.location;
+          // create the marker
+          createMarker(placeLoc, self.markers);
         }
       }
     });
 
-    // Take a place parameter and add marker onto location
-    function createMarker(place) {
-      // Get the marker location
-      var placeLoc = place.geometry.location;
-
-      // Create the marker
-      var marker = new google.maps.Marker({
-        map: map,
-        position: placeLoc,
-        animation: google.maps.Animation.DROP,
-        icon: icon,
-        optimized: false
-      });
-
-      // Push the marker to the markers array
-      self.markers.push(marker);
-
-      // Onclick event to open infowindow
-      marker.addListener('click', function() {
-        populateInfoWindow(this, largeInfowindow, place);
-      });
-
-      // On hover bounce the marker
-      marker.addListener('mouseover', function() {
-        this.setAnimation(google.maps.Animation.BOUNCE);
-      });
-      marker.addListener('mouseout', function() {
-        this.setAnimation(null);
-      });
-    }
 
     function populateInfoWindow(marker, infowindow, place) {
       // Check if the infowindow is not already opened on this marker
@@ -281,6 +284,14 @@ export default function ViewModel() {
     } else {
       self.areaBounds = [];
     }
+
+    // Remove all the area markers
+    if (self.areaMarkers != null) {
+      for (var i = 0; i < self.areaMarkers.length; i++) {
+        self.areaMarkers[i].setMap(null);
+      }
+      self.areaMarkers = [];
+    }
   }
 
   // Retrieve the curren date and set the year and month arrays.
@@ -340,9 +351,11 @@ export default function ViewModel() {
   function getPoliceData() {
     self.currentCenter = map.getCenter();
 
+    // Disable the map controls
     disableMapControls();
     self.showDialog(!self.showDialog());
 
+    // Get the Police neighborhood ID's
     locNeighborhood(self.currentCenter.lat(), self.currentCenter.lng()).then(
       (data) => {
         // Get the Neighborhood Boundaries at the hand of police data
@@ -373,6 +386,7 @@ export default function ViewModel() {
 
             // Add the Google polygon to the areaBounds array
             self.areaBounds.push(areaPolygon);
+            // Set currentAreaIndex to the latest areaBounds
             self.currentAreaIndex = self.areaBounds.length - 1;
 
             // Draw the areaPolygon onto the map
@@ -392,43 +406,42 @@ export default function ViewModel() {
                   break;
                 }
               }
-
               // Pan to the clicked neighborhood
-              map.panTo(e.latLng);
+              //map.panTo(e.latLng);
+              focusMapOnArea();
             });
+
+            // Zoom to the area
+            focusMapOnArea();
+            // Add a marker onto the center of the polygon
+            createMarker(self.currentCenter, self.areaMarkers);
+
+            // Get the crime statistics for the current Area
+            getStreetLevelCrime(
+              self.currentCenter.lat(),
+              self.currentCenter.lng(),
+              self.policeYear(),
+              self.policeMonth()
+            ).then(
+              (data) => {
+                self.crimes.push(data);
+                // SetCrimeData in the sidebar after crimes are logged
+                setCrimeData();
+                // Re-enable the map controls
+                enableMapControls();
+                self.showDialog(!self.showDialog());
+              });
           }
         );
-
         // Add the neighborhood to the areas Observable array
         self.areas.push(data);
-
-        // Get the crime statistics for the current Area
-        getStreetLevelCrime(
-          self.currentCenter.lat(),
-          self.currentCenter.lng(),
-          self.policeYear(),
-          self.policeMonth()
-        ).then(
-          (data) => {
-            console.log("getStreetLevelCrime called and crimes logged");
-            self.crimes.push(data);
-            setCrimeData();
-            enableMapControls();
-            self.showDialog(!self.showDialog());
-          }
-        );
       }
     );
   }
 
 
-  // When clicked on a list item moveTo this area
-  this.moveTo = function(item, event) {
-    // Get the context of the list item clicked
-    var context = ko.contextFor(event.target);
-
-    self.currentAreaIndex = context.$index();
-
+  // Focus map on chosen area
+  function focusMapOnArea() {
     var area = self.areaBounds[self.currentAreaIndex];
     var bounds = new google.maps.LatLngBounds();
 
@@ -443,9 +456,21 @@ export default function ViewModel() {
 
     //now use the bounds
     map.fitBounds(bounds);
+
+    // Reset the self.currentCenter
+    self.currentCenter = map.getCenter();
+  }
+
+
+  // When clicked on a list item moveTo this area
+  this.moveTo = function(item, event) {
+    // Get the context of the list item clicked
+    var context = ko.contextFor(event.target);
+
+    self.currentAreaIndex = context.$index();
+
+    focusMapOnArea();
   };
-
-
 
 
   // Add listener to map to check if area is known neighborhood and get
@@ -474,8 +499,11 @@ export default function ViewModel() {
       console.log("getPoliceData was called in Idle listener");
     } else {
       contained = false;
-      setCrimeData();
-      console.log("idle listener was called but no getPoliceData");
+      console.log("setCrimeData was called in Idle listener");
+      // Make sure the crime levels have been logged before setCrimeData
+      if (self.crimes[self.currentAreaIndex] != undefined) {
+        setCrimeData();
+      }
     }
     if (self.showPolice() == true) {
       getPoliceStations();
