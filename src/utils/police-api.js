@@ -16,10 +16,12 @@ export async function locNeighborhood(lat, lng) {
       lng);
   } catch (e) {
     console.log("Unable to access data.police.uk API: " + e.message);
+    throw alert("Unable to access data.police.uk API: " + e.message);
   }
 
   if (response.status !== 200) {
     console.log("problem loading data. Status code:" + response.status);
+    alert("problem loading data. Status code:" + response.status);
   }
 
   const data = await response.json();
@@ -43,11 +45,13 @@ export async function getBoundsNeigh(neighborhood, force) {
     response = await fetch(`https://data.police.uk/api/` + force + `/` +
       neighborhood + `/boundary`);
   } catch (e) {
-    throw console.log("Problem loading Neighbourhood boundary: " + e.message);
+    console.log("Problem loading Neighbourhood boundary: " + e.message);
+    throw alert("Problem loading Neighbourhood boundary: " + e.message);
   }
 
   if (response.status !== 200) {
-    throw console.log("problem loading data. Status code:" + response.status);
+    console.log("problem loading data. Status code:" + response.status);
+    throw alert("problem loading data. Status code:" + response.status);
   }
 
   const data = await response.json();
@@ -74,11 +78,13 @@ export async function getStreetLevelCrime(lat, lng, year, month) {
       `https://data.police.uk/api/crimes-street/all-crime?lat=` + lat +
       `&lng=` + lng + `&date=` + year + `-` + month);
   } catch (e) {
-    throw console.log("Problem retrieving Street Level Crime: " + e.message);
+    console.log("Problem retrieving Street Level Crime: " + e.message);
+    throw alert("Problem retrieving Street Level Crime: " + e.message);
   }
 
   if (response.status !== 200) {
-    throw console.log("problem loading data. Status code:" + response.status);
+    console.log("problem loading data. Status code:" + response.status);
+    throw alert("problem loading data. Status code:" + response.status);
   }
 
   const data = await response.json();
