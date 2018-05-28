@@ -10,7 +10,8 @@ import {
 import {
   getRandColor
 } from './utils/tools';
-import icon from './marker';
+import policeIcon from './markerPolice';
+import knifeIcon from './markerKnife';
 
 
 /* ==== ViewModel ==== */
@@ -145,7 +146,7 @@ export default function ViewModel() {
   }
 
   // Take a place parameter and add marker onto location
-  function createMarker(place, markerList) {
+  function createMarker(place, markerList, icon) {
     // Create the marker
     var marker = new google.maps.Marker({
       map: map,
@@ -200,7 +201,7 @@ export default function ViewModel() {
           // Get the marker location
           var placeLoc = place.geometry.location;
           // create the marker
-          createMarker(placeLoc, self.markers);
+          createMarker(placeLoc, self.markers, policeIcon);
         }
       }
     });
@@ -413,7 +414,7 @@ export default function ViewModel() {
             // Zoom to the area
             focusMapOnArea();
             // Add a marker onto the center of the polygon
-            createMarker(self.currentCenter, self.areaMarkers);
+            createMarker(self.currentCenter, self.areaMarkers, knifeIcon);
 
             // Get the crime statistics for the current Area
             getStreetLevelCrime(
