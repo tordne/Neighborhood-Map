@@ -51,9 +51,11 @@ export default function ViewModel() {
   self.showList = ko.observable(true);
   // Hide the Police Section
   self.showPolice = ko.observable(false);
-  self.showPolice.subscribe(() => {
-    if ( self.markers != undefined || self.markers != null) {
-      self.markers = [];
+  self.showPolice.subscribe((state) => {
+    if (state == true) {
+      getPoliceStations();
+    } else {
+      removePoliceStations();
     }
   });
 
@@ -130,17 +132,23 @@ export default function ViewModel() {
     }
   };
 
-
-  // This function is called to show the local police stations
-  function getPoliceStations() {
-    console.log("Call the getPoliceStations Function");
-
+  // Remove all Police stations
+  function removePoliceStations() {
     if (self.markers != null) {
       for (var i = 0; i < self.markers.length; i++) {
         self.markers[i].setMap(null);
       }
       self.markers = [];
     }
+  }
+
+
+  // This function is called to show the local police stations
+  function getPoliceStations() {
+    console.log("Call the getPoliceStations Function");
+
+    //Remove police Stations if exist
+    removePoliceStations();
 
     // set the largeInfowindow
     var largeInfowindow = new google.maps.InfoWindow();
@@ -469,6 +477,8 @@ export default function ViewModel() {
       setCrimeData();
       console.log("idle listener was called but no getPoliceData");
     }
-    getPoliceStations();
+    if (self.showPolice() == true) {
+      getPoliceStations();
+    }
   });
 }
