@@ -223,3 +223,37 @@ p {
 .window-text {
   margin: 5px 0px 5px;
 }
+
+
+/*
+ *
+ * @media min-height 568px
+ *
+ */
+
+@media screen and (min-height: 568px) {
+  .crime-list {
+    height: 220px;
+  }
+
+  .nh-list {
+    height: 60px;
+  }
+}
+
+
+/*
+ *
+ * @media min-height 640px
+ *
+ */
+
+@media screen and (min-height: 641px) {
+  .crime-list {
+    height: 320px;
+  }
+
+  .nh-list {
+    height: 100px;
+  }
+}
