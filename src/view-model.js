@@ -406,8 +406,7 @@ export default function ViewModel() {
                   break;
                 }
               }
-              // Pan to the clicked neighborhood
-              //map.panTo(e.latLng);
+              // focus map on the clicked area
               focusMapOnArea();
             });
 
