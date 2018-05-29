@@ -73,11 +73,16 @@
         <ul class="crime-list" data-bind="foreach: currentCrimeCategories">
           <li data-bind="text: category + ' ' +  count"></li>
         </ul>
+        <hr>
       </section>
-      <hr>
+      <section class="filter-section" data-bind="visible: showFilter">
+        <h3>Filter Neighborhoods by Force:</h3>
+        <input data-bind="value: filter, valueUpdate: 'afterkeydown'" />
+        <hr>
+      </section>
       <section id="neighborhood-section">
         <h3>Neighborhoods:</h3>
-        <ul class="nh-list" data-bind="foreach: areas">
+        <ul class="nh-list" data-bind="foreach: filteredAreas">
           <li data-bind="text: force + ' ' + neighbourhood, click:$parent.moveTo"></li>
         </ul>
       </section>

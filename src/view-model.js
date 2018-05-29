@@ -65,6 +65,7 @@ export default function ViewModel() {
   // Current area index number
   self.currentAreaIndex = "";
 
+  // The current area information
   self.currentForce = ko.observable();
   self.currentNeighborhood = ko.observable();
   self.currentTotalCrimes = ko.observable();
@@ -80,6 +81,19 @@ export default function ViewModel() {
   self.markers = [];
   // Array with all the area markers
   self.areaMarkers = [];
+
+  // Filter observables
+  self.filter = ko.observable("");
+  self.filteredAreas = ko.dependentObservable(() => {
+    var filter = self.filter().toLowerCase();
+    if (!filter) {
+      return self.areas();
+    } else {
+      return ko.utils.arrayFilter(self.areas(), function(area) {
+        return area.force.startsWith(filter);
+      });
+    }
+  }, this);
 
   // Upon clicking the menu button hide or show the sidebar
   self.toggleSidebar = function() {
@@ -426,8 +440,7 @@ export default function ViewModel() {
               focusMapOnArea();
             });
 
-            // Zoom to the area
-            focusMapOnArea();
+
 
             // Get the crime statistics for the current Area
             getStreetLevelCrime(
@@ -440,6 +453,9 @@ export default function ViewModel() {
                 self.crimes.push(data);
                 // SetCrimeData in the sidebar after crimes are logged
                 setCrimeData();
+
+                // Zoom to the area
+                focusMapOnArea();
 
                 // Add a marker onto the center of the polygon
                 createMarker(self.currentCenter, self.areaMarkers, knifeIcon);
