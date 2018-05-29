@@ -502,6 +502,11 @@ export default function ViewModel() {
 
     self.currentAreaIndex = context.$index();
 
+    // Set the marker to bouncing
+    var marker = self.areaMarkers[self.currentAreaIndex];
+    marker.setAnimation(google.maps.Animation.BOUNCE);
+
+    // Focus to the selected area
     focusMapOnArea();
   };
 
