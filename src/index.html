@@ -84,6 +84,12 @@
     </aside>
     <div id="map"></div>
   </main>
-    <script src="https://maps.googleapis.com/maps/api/js?libraries=places,geometry,drawing&key=AIzaSyCvJYI51Btcpfq7CIj0XwDLh0FZ4dhSfs0&v=3&callback=initApp"></script>
+    <script type="text/javascript">
+      function showMapError() {
+        alert("Google Maps could not be loaded, " +
+          "Check your internet connection.");
+      }
+    </script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?libraries=places,geometry,drawing&key=AIzaSyCvJYI51Btcpfq7CIj0XwDLh0FZ4dhSfs0&v=3&callback=initApp" onerror="showMapError()"></script>
 </body>
 </html>
