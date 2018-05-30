@@ -87,10 +87,22 @@ export default function ViewModel() {
   self.filteredAreas = ko.dependentObservable(() => {
     var filter = self.filter().toLowerCase();
     if (!filter) {
+      for (let i = 0; i < self.areaBounds.length; i++) {
+        self.areaMarkers[i].setMap(map);
+        self.areaBounds[i].setMap(map);
+      }
       return self.areas();
     } else {
-      return ko.utils.arrayFilter(self.areas(), function(area) {
-        return area.force.startsWith(filter);
+      for (let i = 0; i < self.areaBounds.length; i++) {
+        self.areaMarkers[i].setMap(null);
+        self.areaBounds[i].setMap(null);
+      }
+      return self.areas().filter(function(area, index) {
+        if (area.force.startsWith(filter)) {
+          self.areaMarkers[index].setMap(map);
+          self.areaBounds[index].setMap(map);
+          return area;
+        }
       });
     }
   }, this);
@@ -498,9 +510,10 @@ export default function ViewModel() {
   // When clicked on a list item moveTo this area
   this.moveTo = function(item, event) {
     // Get the context of the list item clicked
-    var context = ko.contextFor(event.target);
+    let context = ko.contextFor(event.target);
+    let neighborhood = context.$data;
 
-    self.currentAreaIndex = context.$index();
+    self.currentAreaIndex = self.areas().indexOf(neighborhood);
 
     // Set the marker to bouncing
     var marker = self.areaMarkers[self.currentAreaIndex];
