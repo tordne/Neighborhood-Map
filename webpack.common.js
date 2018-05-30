@@ -2,6 +2,7 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const webpack = require('webpack');
+const HtmlWebpackInlineSVGPlugin = require('html-webpack-inline-svg-plugin');
 
 module.exports = {
   entry: {
@@ -22,6 +23,10 @@ module.exports = {
             presets: ['@babel/preset-env'],
           }
         }
+      },
+      {
+        test: /\.(gif|png|jpe?g|svg)$/i,
+        loader: 'file-loader?name=[name].[ext]&outputPath=img/'
       }
     ]
   },
@@ -32,6 +37,7 @@ module.exports = {
   		title: 'Neighborhood Map',
       inject: 'head'
   	}),
+    new HtmlWebpackInlineSVGPlugin(),
     new webpack.NamedModulesPlugin(),
     new webpack.HotModuleReplacementPlugin()
   ],

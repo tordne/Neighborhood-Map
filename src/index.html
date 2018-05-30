@@ -25,21 +25,41 @@
         <p>The police data is loading. Please wait.</p>
       </div>
     </section>
-    <aside data-bind="visible: showSidebar">
-      <section id="date">
+    <aside class="aside" data-bind="visible: showSidebar">
+      <nav class="nav-bar">
+        <div class="nav-button" data-bind="click: toggleDate, css: {'nav-button-selected': showDate() == true}">
+          <img inline src=<%= require("./img/calendar.svg") %> />
+        </div>
+        <div class="nav-button" data-bind="click: toggleSearch, css: {'nav-button-selected': showSearch() == true}">
+          <img inline src=<%= require("./img/search.svg") %> />
+        </div>
+        <div class="nav-button" data-bind="click: toggleFilter, css: {'nav-button-selected': showFilter() == true}">
+          <img inline src=<%= require("./img/filter.svg") %> />
+        </div>
+        <div class="nav-button" data-bind="css: {'nav-button-selected': showCrime() == true}">
+          <img inline src=<%= require("./img/gun.svg") %> />
+        </div>
+        <div class="nav-button" data-bind="css: {'nav-button-selected': showList() == true}">
+          <img inline src=<%= require("./img/list.svg") %> />
+        </div>
+        <div class="nav-button" data-bind="click: togglePolice, css: {'nav-button-selected': showPolice() == true}">
+          <img inline src=<%= require("./img/police.svg") %> />
+        </div>
+      </nav>
+      <section class="date" data-bind="visible: showDate">
         <h3>Year: </h3>
         <select class="" data-bind="options: allYears, value: policeYear" size="1"></select>
         <h3>Month: </h3>
         <select class="" data-bind="options: allMonths, value: policeMonth" size="1"></select>
+        <hr>
       </section>
-      <hr>
-      <section id="search-section">
+      <section class="search-section" data-bind="visible: showSearch">
         <form data-bind="submit: zoomToArea">
-          <input id="search-text" class="search" type="text" data-bind='value: areaToZoom, valueUpdate: "afterkeydown"' placeholder="Enter an area">
-          <button id="search" class="search" type="submit"><i class="fa fa-search"></i></button>
+          <input id="search-text" class="search-text search" type="text" data-bind='value: areaToZoom, valueUpdate: "afterkeydown"' placeholder="Enter an area">
+          <button class="search search-button" type="submit"><i class="fa fa-search"></i></button>
         </form>
+        <hr>
       </section>
-      <hr>
       <section id="info-section">
         <div class="info">
           <h3>Force: </h3>
@@ -50,19 +70,31 @@
         <div class="info">
           <h3>There was a total of: <span data-bind="text:currentTotalCrimes"></span> crimes</h3>
         </div>
-        <ul id="crime-list" data-bind="foreach: currentCrimeCategories">
+        <ul class="crime-list" data-bind="foreach: currentCrimeCategories">
           <li data-bind="text: category + ' ' +  count"></li>
         </ul>
+        <hr>
       </section>
-      <hr>
+      <section class="filter-section" data-bind="visible: showFilter">
+        <h3>Filter Neighborhoods by Force:</h3>
+        <input data-bind="value: filter, valueUpdate: 'afterkeydown'" />
+        <hr>
+      </section>
       <section id="neighborhood-section">
-        <ul id="nh-list" data-bind="foreach: areas">
+        <h3>Neighborhoods:</h3>
+        <ul class="nh-list" data-bind="foreach: filteredAreas">
           <li data-bind="text: force + ' ' + neighbourhood, click:$parent.moveTo"></li>
         </ul>
       </section>
     </aside>
     <div id="map"></div>
   </main>
-    <script src="https://maps.googleapis.com/maps/api/js?libraries=places,geometry,drawing&key=AIzaSyCvJYI51Btcpfq7CIj0XwDLh0FZ4dhSfs0&v=3&callback=initApp"></script>
+    <script type="text/javascript">
+      function showMapError() {
+        alert("Google Maps could not be loaded, " +
+          "Check your internet connection.");
+      }
+    </script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?libraries=places,geometry,drawing&key=AIzaSyCvJYI51Btcpfq7CIj0XwDLh0FZ4dhSfs0&v=3&callback=initApp" onerror="showMapError()"></script>
 </body>
 </html>

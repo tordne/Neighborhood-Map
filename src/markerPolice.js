@@ -3,5 +3,6 @@ export default {
 	fillColor: "#001ba3",
 	fillOpacity: 0.6,
 	strokeWeight: 0,
-	scale: 2
+	scale: 2,
+	name: "police"
 };

@@ -10,7 +10,8 @@ import {
 import {
   getRandColor
 } from './utils/tools';
-import icon from './marker';
+import policeIcon from './markerPolice';
+import knifeIcon from './markerKnife';
 
 
 /* ==== ViewModel ==== */
@@ -37,14 +38,34 @@ export default function ViewModel() {
 
   // Hide the sidebar upon loading of the page
   self.showSidebar = ko.observable(false);
-
+  // Hide the Dialog showing police loading warning
   self.showDialog = ko.observable(false);
+  // Hide the Date Section
+  self.showDate = ko.observable(false);
+  // Hide the Search Section
+  self.showSearch = ko.observable(false);
+  // Hide the Filter Section
+  self.showFilter = ko.observable(false);
+  // Hide the Crime Section
+  self.showCrime = ko.observable(true);
+  // Hide the List Section
+  self.showList = ko.observable(true);
+  // Hide the Police Section
+  self.showPolice = ko.observable(false);
+  self.showPolice.subscribe((state) => {
+    if (state == true) {
+      getPoliceStations();
+    } else {
+      removePoliceStations();
+    }
+  });
 
-  // Set the currentCenter as an observable
+  // Set the currentCenter.
   self.currentCenter = {};
-  // Obsevable current area index number
+  // Current area index number
   self.currentAreaIndex = "";
 
+  // The current area information
   self.currentForce = ko.observable();
   self.currentNeighborhood = ko.observable();
   self.currentTotalCrimes = ko.observable();
@@ -58,12 +79,51 @@ export default function ViewModel() {
   self.crimes = [];
   // Array with all the google police stations set as markers
   self.markers = [];
+  // Array with all the area markers
+  self.areaMarkers = [];
+
+  // Filter observables
+  self.filter = ko.observable("");
+  self.filteredAreas = ko.dependentObservable(() => {
+    var filter = self.filter().toLowerCase();
+    if (!filter) {
+      for (let i = 0; i < self.areaBounds.length; i++) {
+        self.areaMarkers[i].setMap(map);
+        self.areaBounds[i].setMap(map);
+      }
+      return self.areas();
+    } else {
+      for (let i = 0; i < self.areaBounds.length; i++) {
+        self.areaMarkers[i].setMap(null);
+        self.areaBounds[i].setMap(null);
+      }
+      return self.areas().filter(function(area, index) {
+        if (area.force.startsWith(filter)) {
+          self.areaMarkers[index].setMap(map);
+          self.areaBounds[index].setMap(map);
+          return area;
+        }
+      });
+    }
+  }, this);
 
   // Upon clicking the menu button hide or show the sidebar
   self.toggleSidebar = function() {
     self.showSidebar(!self.showSidebar());
   };
-
+  // 4 toggle functions connected to the nav menu
+  self.toggleDate = function() {
+    self.showDate(!self.showDate());
+  };
+  self.toggleSearch = function() {
+    self.showSearch(!self.showSearch());
+  };
+  self.toggleFilter = function() {
+    self.showFilter(!self.showFilter());
+  };
+  self.togglePolice = function() {
+    self.showPolice(!self.showPolice());
+  };
 
   // Autocomplete for the search box
   var autocomplete = new google.maps.places.Autocomplete(
@@ -101,20 +161,127 @@ export default function ViewModel() {
     }
   };
 
-
-  // This function is called to show the local police stations
-  function getPoliceStations() {
-    console.log("Call the getPoliceStations Function");
-
+  // Remove all Police stations
+  function removePoliceStations() {
     if (self.markers != null) {
       for (var i = 0; i < self.markers.length; i++) {
         self.markers[i].setMap(null);
       }
       self.markers = [];
     }
+  }
 
-    // set the largeInfowindow
-    var largeInfowindow = new google.maps.InfoWindow();
+  // Take a place parameter and add marker onto location
+  function createMarker(placeLoc, markerList, icon, place) {
+    // Create the marker
+    var marker = new google.maps.Marker({
+      map: map,
+      position: placeLoc,
+      animation: google.maps.Animation.DROP,
+      icon: icon,
+      optimized: false
+    });
+
+    // Push the marker to the markers array
+    markerList.push(marker);
+
+    if (icon.name == "police") {
+      // set the largeInfowindow
+      var largeInfowindow = new google.maps.InfoWindow();
+
+      // Onclick event to open infowindow
+      marker.addListener('click', function() {
+        populateInfoWindow(this, largeInfowindow, place);
+      });
+
+      // On hover bounce the marker
+      marker.addListener('mouseover', function() {
+        this.setAnimation(google.maps.Animation.BOUNCE);
+      });
+      marker.addListener('mouseout', function() {
+        this.setAnimation(null);
+      });
+    } else {
+      marker.addListener('click', function() {
+        this.setAnimation(google.maps.Animation.BOUNCE);
+
+        self.currentAreaIndex = markerList.indexOf(marker);
+
+        self.showSidebar(true);
+
+        focusMapOnArea();
+      });
+    }
+  }
+
+
+  // Function to populate the infoWindow
+  function populateInfoWindow(marker, infowindow, place) {
+    // Check if the infowindow is not already opened on this marker
+    if (infowindow.marker != marker) {
+      // Clear the infowindow
+      infowindow.setContent('');
+      infowindow.marker = marker;
+
+      // Make sure the marker property is cleared if the infowindow
+      // is closed.
+      infowindow.addListener('closeclick', function() {
+        infowindow.marker = null;
+      });
+
+      var request = {
+        placeId: place.place_id
+      };
+
+      // Retrieve placedetails from google
+      service = new google.maps.places.PlacesService(map);
+      service.getDetails(request, function(details, status) {
+        if (status == google.maps.places.PlacesServiceStatus.OK) {
+          var content = "";
+
+          if (details.name != undefined) {
+            content += '<h3>' + details.name + '</h3>';
+          }
+
+          if (details.opening_hours != undefined &&
+            details.opening_hours.open_now != undefined) {
+            if (details.opening_hours.open_now) {
+              content += '<h3>Station is now <span class="open">open!' +
+                '</span></h3>';
+            } else {
+              content += '<h3>Station is now <span class"closed">closed!' +
+                '</span></h3>';
+            }
+          }
+
+          if (details.formatted_address != undefined) {
+            content += '<h4 class="window-sub">Address:</h4>';
+            content += '<p class="window-text">' +
+              details.formatted_address + '</p>';
+          }
+
+          if (details.opening_hours != undefined &&
+            details.opening_hours.weekday_text != undefined) {
+            var weekdays = details.opening_hours.weekday_text;
+            content += '<h4 class="window-sub">Opening Times:</h4>';
+            for (var i = 0; i < weekdays.length; i++) {
+              content += '<p class="window-text">' + weekdays[i] + '</p>';
+            }
+          }
+          infowindow.setContent(content);
+        }
+      });
+    }
+    infowindow.open(map, marker);
+  }
+
+
+  // This function is called to show the local police stations
+  function getPoliceStations() {
+    console.log("Call the getPoliceStations Function");
+
+    //Remove police Stations if exist
+    removePoliceStations();
 
     // Set the bounds of the map
     var bounds = map.getBounds();
@@ -129,100 +296,15 @@ export default function ViewModel() {
       if (status == google.maps.places.PlacesServiceStatus.OK) {
         for (var i = 0; i < results.length; i++) {
           var place = results[i];
-          //console.log(place);
-          createMarker(place);
+
+          // Get the marker location
+          var placeLoc = place.geometry.location;
+
+          // create the marker
+          createMarker(placeLoc, self.markers, policeIcon, place);
         }
       }
     });
-
-    // Take a place parameter and add marker onto location
-    function createMarker(place) {
-      // Get the marker location
-      var placeLoc = place.geometry.location;
-
-      // Create the marker
-      var marker = new google.maps.Marker({
-        map: map,
-        position: placeLoc,
-        animation: google.maps.Animation.DROP,
-        icon: icon,
-        optimized: false
-      });
-
-      // Push the marker to the markers array
-      self.markers.push(marker);
-
-      // Onclick event to open infowindow
-      marker.addListener('click', function() {
-        populateInfoWindow(this, largeInfowindow, place);
-      });
-
-      // On hover bounce the marker
-      marker.addListener('mouseover', function() {
-        this.setAnimation(google.maps.Animation.BOUNCE);
-      });
-      marker.addListener('mouseout', function() {
-        this.setAnimation(null);
-      });
-    }
-
-    function populateInfoWindow(marker, infowindow, place) {
-      // Check if the infowindow is not already opened on this marker
-      if (infowindow.marker != marker) {
-        // Clear the infowindow
-        infowindow.setContent('');
-        infowindow.marker = marker;
-
-        // Make sure the marker property is cleared if the infowindow
-        // is closed.
-        infowindow.addListener('closeclick', function() {
-          infowindow.marker = null;
-        });
-
-        var request = {
-          placeId: place.place_id
-        };
-
-        // Retrieve placedetails from google
-        service.getDetails(request, function(details, status) {
-          if (status == google.maps.places.PlacesServiceStatus.OK) {
-            var content = "";
-
-            if (details.name != undefined) {
-              content += '<h3>' + details.name + '</h3>';
-            }
-
-            if (details.opening_hours != undefined &&
-              details.opening_hours.open_now != undefined) {
-              if (details.opening_hours.open_now) {
-                content += '<h3>Station is now <span class="open">open!' +
-                  '</span></h3>';
-              } else {
-                content += '<h3>Station is now <span class"closed">closed!' +
-                  '</span></h3>';
-              }
-            }
-
-            if (details.formatted_address != undefined) {
-              content += '<h4 class="window-sub">Address:</h4>';
-              content += '<p class="window-text">' +
-                details.formatted_address + '</p>';
-            }
-
-            if (details.opening_hours != undefined &&
-              details.opening_hours.weekday_text != undefined) {
-              var weekdays = details.opening_hours.weekday_text;
-              content += '<h4 class="window-sub">Opening Times:</h4>';
-              for (var i = 0; i < weekdays.length; i++) {
-                content += '<p class="window-text">' + weekdays[i] + '</p>';
-              }
-            }
-            infowindow.setContent(content);
-          }
-        });
-      }
-      infowindow.open(map, marker);
-    }
   }
 
 
@@ -243,6 +325,14 @@ export default function ViewModel() {
       getPoliceData();
     } else {
       self.areaBounds = [];
+    }
+
+    // Remove all the area markers
+    if (self.areaMarkers != null) {
+      for (var i = 0; i < self.areaMarkers.length; i++) {
+        self.areaMarkers[i].setMap(null);
+      }
+      self.areaMarkers = [];
     }
   }
 
@@ -303,9 +393,11 @@ export default function ViewModel() {
   function getPoliceData() {
     self.currentCenter = map.getCenter();
 
+    // Disable the map controls
     disableMapControls();
     self.showDialog(!self.showDialog());
 
+    // Get the Police neighborhood ID's
     locNeighborhood(self.currentCenter.lat(), self.currentCenter.lng()).then(
       (data) => {
         // Get the Neighborhood Boundaries at the hand of police data
@@ -336,6 +428,7 @@ export default function ViewModel() {
 
             // Add the Google polygon to the areaBounds array
             self.areaBounds.push(areaPolygon);
+            // Set currentAreaIndex to the latest areaBounds
             self.currentAreaIndex = self.areaBounds.length - 1;
 
             // Draw the areaPolygon onto the map
@@ -355,43 +448,45 @@ export default function ViewModel() {
                   break;
                 }
               }
-
-              // Pan to the clicked neighborhood
-              map.panTo(e.latLng);
+              // focus map on the clicked area
+              focusMapOnArea();
             });
+
+
+
+            // Get the crime statistics for the current Area
+            getStreetLevelCrime(
+              self.currentCenter.lat(),
+              self.currentCenter.lng(),
+              self.policeYear(),
+              self.policeMonth()
+            ).then(
+              (data) => {
+                self.crimes.push(data);
+                // SetCrimeData in the sidebar after crimes are logged
+                setCrimeData();
+
+                // Zoom to the area
+                focusMapOnArea();
+
+                // Add a marker onto the center of the polygon
+                createMarker(self.currentCenter, self.areaMarkers, knifeIcon);
+
+                // Re-enable the map controls
+                enableMapControls();
+                self.showDialog(!self.showDialog());
+              });
           }
         );
-
         // Add the neighborhood to the areas Observable array
         self.areas.push(data);
-
-        // Get the crime statistics for the current Area
-        getStreetLevelCrime(
-          self.currentCenter.lat(),
-          self.currentCenter.lng(),
-          self.policeYear(),
-          self.policeMonth()
-        ).then(
-          (data) => {
-            console.log("getStreetLevelCrime called and crimes logged");
-            self.crimes.push(data);
-            setCrimeData();
-            enableMapControls();
-            self.showDialog(!self.showDialog());
-          }
-        );
       }
     );
   }
 
 
-  // When clicked on a list item moveTo this area
-  this.moveTo = function(item, event) {
-    // Get the context of the list item clicked
-    var context = ko.contextFor(event.target);
-
-    self.currentAreaIndex = context.$index();
-
+  // Focus map on chosen area
+  function focusMapOnArea() {
     var area = self.areaBounds[self.currentAreaIndex];
     var bounds = new google.maps.LatLngBounds();
 
@@ -406,9 +501,27 @@ export default function ViewModel() {
 
     //now use the bounds
     map.fitBounds(bounds);
+
+    // Reset the self.currentCenter
+    self.currentCenter = map.getCenter();
+  }
+
+
+  // When clicked on a list item moveTo this area
+  this.moveTo = function(item, event) {
+    // Get the context of the list item clicked
+    let context = ko.contextFor(event.target);
+    let neighborhood = context.$data;
+
+    self.currentAreaIndex = self.areas().indexOf(neighborhood);
+
+    // Set the marker to bouncing
+    var marker = self.areaMarkers[self.currentAreaIndex];
+    marker.setAnimation(google.maps.Animation.BOUNCE);
+
+    // Focus to the selected area
+    focusMapOnArea();
   };
-
-
 
 
   // Add listener to map to check if area is known neighborhood and get
@@ -437,9 +550,14 @@ export default function ViewModel() {
       console.log("getPoliceData was called in Idle listener");
     } else {
       contained = false;
-      setCrimeData();
-      console.log("idle listener was called but no getPoliceData");
+      console.log("setCrimeData was called in Idle listener");
+      // Make sure the crime levels have been logged before setCrimeData
+      if (self.crimes[self.currentAreaIndex] != undefined) {
+        setCrimeData();
+      }
     }
-    getPoliceStations();
+    if (self.showPolice() == true) {
+      getPoliceStations();
+    }
   });
 }

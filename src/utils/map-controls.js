@@ -23,7 +23,7 @@ export function disableMapControls() {
  *
  */
 export function enableMapControls() {
-	// Set gesture Handling to none
+  // Set gesture Handling to none
   map.setOptions({
     gestureHandling: 'auto'
   });
