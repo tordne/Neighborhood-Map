@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="eng-GB">
+<head>
+  <meta charset="utf-8">
+  <title>Neighborhood Map</title>
+  <!-- Meta -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Udacity Neighborhood Map">
+  <meta name="author" content="Christopher Berdahl">
+  <!-- Styles -->
+  <link href="https://fonts.googleapis.com/css?family=Fjalla+One|Open+Sans+Condensed:300" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.10/css/all.css" integrity="sha384-+d0P83n9kaQMCwj8F4RJB66tzIwOKmrdb46+porD/OvrJ+37WqIM7UoBtwHO6Nlg" crossorigin="anonymous">
+  <!-- Java scripts -->
+  <script src="https://code.jquery.com/jquery-3.1.0.js" integrity="sha256-slogkvB1K3VOkzAI8QITxV3VzpOnkeNVsKvtkYLMjfk=" crossorigin="anonymous"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
+<script type="text/javascript" src="app.bundle.js"></script></head>
+<body>
+  <header class="header">
+    <i id="side-bar-toggle" class="fas fa-bars header-menu" data-bind="click: toggleSidebar"></i>
+    <h1>Police Neighborhood Map</h1>
+  </header>
+  <main>
+    <section class="dialog" data-bind="visible: showDialog">
+      <div class="dialog-box">
+        <p>The police data is loading. Please wait.</p>
+      </div>
+    </section>
+    <aside class="aside" data-bind="visible: showSidebar">
+      <nav class="nav-bar">
+        <div class="nav-button" data-bind="click: toggleDate, css: {'nav-button-selected': showDate() == true}">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M452 40h-24V0h-40v40H124V0H84v40H60C26.916 40 0 66.916 0 100v352c0 33.084 26.916 60 60 60h392c33.084 0 60-26.916 60-60V100c0-33.084-26.916-60-60-60zm20 412c0 11.028-8.972 20-20 20H60c-11.028 0-20-8.972-20-20V188h432v264zm0-304H40v-48c0-11.028 8.972-20 20-20h24v40h40V80h264v40h40V80h24c11.028 0 20 8.972 20 20v48z"/><path d="M76 230h40v40H76zm80 0h40v40h-40zm80 0h40v40h-40zm80 0h40v40h-40zm80 0h40v40h-40zM76 310h40v40H76zm80 0h40v40h-40zm80 0h40v40h-40zm80 0h40v40h-40zM76 390h40v40H76zm80 0h40v40h-40zm80 0h40v40h-40zm80 0h40v40h-40zm80-80h40v40h-40z"/></svg>
+        </div>
+        <div class="nav-button" data-bind="click: toggleSearch, css: {'nav-button-selected': showSearch() == true}">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M302 0C186.206 0 92 94.206 92 210c0 50.944 18.234 97.709 48.519 134.112L5.906 477.81c-7.837 7.784-7.88 20.447-.097 28.284A19.94 19.94 0 0 0 20 512a19.94 19.94 0 0 0 14.093-5.81L168.89 372.31C205.148 402.098 251.523 420 302 420c36.026 0 71.576-9.283 102.804-26.846 9.628-5.414 13.043-17.608 7.628-27.236-5.414-9.627-17.608-13.044-27.236-7.628C359.942 372.493 331.173 380 302 380c-93.738 0-170-76.262-170-170S208.262 40 302 40s170 76.262 170 170c0 29.531-7.683 58.609-22.217 84.091-5.473 9.595-2.131 21.809 7.463 27.282 9.595 5.472 21.809 2.131 27.282-7.463C502.5 282.4 512 246.469 512 210 512 94.206 417.794 0 302 0z"/></svg>
+        </div>
+        <div class="nav-button" data-bind="click: toggleFilter, css: {'nav-button-selected': showFilter() == true}">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M509.996 62.254c-4.074-9.843-13.565-16.188-24.201-16.188H26.206c-10.636 0-20.127 6.345-24.201 16.188a26.182 26.182 0 0 0 5.679 28.582l181.865 182.162v227.924A11.063 11.063 0 0 0 200.626 512c6.13 0 11.078-4.948 11.078-11.078v-232.52c0-2.948-1.172-5.769-3.245-7.842L23.349 75.143c-1.659-1.667-1.262-3.47-.883-4.39.396-.945 1.379-2.487 3.74-2.487h459.598c2.343 0 3.335 1.56 3.731 2.488.379.928.776 2.731-.892 4.39L303.56 260.56a11.092 11.092 0 0 0-3.245 7.842v165.956a11.063 11.063 0 0 0 11.078 11.077 11.063 11.063 0 0 0 11.077-11.077V272.989L504.335 90.827a26.207 26.207 0 0 0 5.661-28.573z"/></svg>
+        </div>
+        <div class="nav-button" data-bind="css: {'nav-button-selected': showCrime() == true}">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M490.667 53.333H448C448 41.551 438.449 32 426.667 32H384c-11.782 0-21.333 9.551-21.333 21.333H149.333C149.333 41.551 139.782 32 128 32H85.333C73.551 32 64 41.551 64 53.333H21.333C9.551 53.333 0 62.885 0 74.667v45.611c0 4.616 1.497 9.107 4.267 12.8l9.024 12.032a12.527 12.527 0 0 1 .004 15.057l-9.028 12.037A21.324 21.324 0 0 0 0 185.003V224c0 11.782 9.551 21.333 21.333 21.333H64c7.109 0 11.734 7.491 8.549 13.854L7.326 374c-12.391 27.643-8.307 57.783 10.205 79.858C31.793 470.866 53.654 480 76.629 480h103.808c46.59 0 71.416-54.969 40.596-89.909l-2.438-2.752 20.865-56.672h44.358c43.292 0 78.848-39.327 78.848-83.264v-2.069h106.667c11.782 0 21.333-9.551 21.333-21.333v-42.667c11.782 0 21.333-9.551 21.333-21.333V74.667c.001-11.782-9.55-21.334-21.332-21.334zM298.667 96v21.333h-64V96h64zm-118.23 341.333H76.629c-10.933 0-20.691-4.077-26.405-10.891-7.987-9.523-9.717-22.293-4.851-33.249l64.804-113.924c5.656-11.28 7.007-23.075 4.985-33.936H225.41l-20.853 56.628c-.022.059-.038.118-.059.177l-28.102 76.326a21.335 21.335 0 0 0-1.177 4.957 38.975 38.975 0 0 0 6.966 26.976l1.419 1.786 5.461 6.165c6.485 7.351 1.23 18.985-8.628 18.985zM320 247.403C320 268.681 302.534 288 283.819 288H255.17l15.709-42.667H320v2.07zm149.333-108.736C457.551 138.667 448 148.218 448 160v42.667H42.667v-10.553l4.757-6.343c14.735-19.636 14.735-46.626-.004-66.266l-4.754-6.338V96H192v42.667c0 11.782 9.551 21.333 21.333 21.333H320c11.782 0 21.333-9.551 21.333-21.333V96h128v42.667zM149.333 288C137.557 288 128 297.557 128 309.333c0 11.776 9.557 21.333 21.333 21.333 11.776 0 21.333-9.557 21.333-21.333 0-11.776-9.557-21.333-21.333-21.333zM128 352c-11.776 0-21.333 9.557-21.333 21.333 0 11.776 9.557 21.333 21.333 21.333 11.776 0 21.333-9.557 21.333-21.333 0-11.776-9.557-21.333-21.333-21.333z"/></svg>
+        </div>
+        <div class="nav-button" data-bind="css: {'nav-button-selected': showList() == true}">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M59 0C26.467 0 0 26.467 0 59s26.467 59 59 59c11.046 0 20-8.954 20-20s-8.954-20-20-20c-10.477 0-19-8.523-19-19s8.523-19 19-19 19 8.523 19 19c0 11.046 8.954 20 20 20s20-8.954 20-20c0-32.533-26.467-59-59-59zm433 433H182c-11.046 0-20 8.954-20 20s8.954 20 20 20h310c11.046 0 20-8.954 20-20s-8.954-20-20-20zm0-197H182c-11.046 0-20 8.954-20 20s8.954 20 20 20h310c11.046 0 20-8.954 20-20s-8.954-20-20-20zM59 197c-32.533 0-59 26.467-59 59s26.467 59 59 59c11.046 0 20-8.954 20-20s-8.954-20-20-20c-10.477 0-19-8.523-19-19s8.523-19 19-19 19 8.523 19 19c0 11.046 8.954 20 20 20s20-8.954 20-20c0-32.533-26.467-59-59-59zM182 79h310c11.046 0 20-8.954 20-20s-8.954-20-20-20H182c-11.046 0-20 8.954-20 20s8.954 20 20 20zM59 394c-32.533 0-59 26.467-59 59s26.467 59 59 59c11.046 0 20-8.954 20-20s-8.954-20-20-20c-10.477 0-19-8.523-19-19s8.523-19 19-19 19 8.523 19 19c0 11.046 8.954 20 20 20s20-8.954 20-20c0-32.533-26.467-59-59-59z"/></svg>
+        </div>
+        <div class="nav-button" data-bind="click: togglePolice, css: {'nav-button-selected': showPolice() == true}">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M219.411 173.124c111.033 0 158.363 19.521 158.363 19.521 0-35.457 78.325-95.117 53.843-95.117C295.286 97.528 266.88 0 218.375 0 169.851 0 158.457 97.528 6.15 97.528c-24.7 0 32.988 59.002 32.988 95.117 0 0 69.241-19.521 180.274-19.521zm-40.835-96.77h79.679v39.839c0 19.92-39.84 39.84-39.84 39.84s-39.84-19.92-39.84-39.84v-39.84zm-.757 248.997a29.123 29.123 0 0 1-29.123 29.123 29.123 29.123 0 0 1-29.123-29.123 29.123 29.123 0 0 1 29.123-29.123 29.123 29.123 0 0 1 29.123 29.123zm139.458 0a29.143 29.143 0 0 1-29.142 29.143 29.143 29.143 0 0 1-29.143-29.143 29.143 29.143 0 0 1 29.143-29.143 29.143 29.143 0 0 1 29.142 29.143zm63.047-60.018v-4.522c0-4.363-1.753-8.227-4.343-11.354-.916-5.16-1.514-10.578-2.749-15.458-.279-1.116-.976-1.992-1.454-2.988 3.227-3.745 5.14-6.912 5.14-8.964 0 0-50.219-24.004-158.503-24.004-108.284 0-158.542 24.004-158.542 24.004 0 2.032 1.873 5.14 5.02 8.824-.22.578-.637 1.016-.797 1.614-1.394 5.259-2.071 11.135-3.087 16.752-2.69 3.148-4.482 7.092-4.482 11.554v4.223c-20.996 9.283-35.318 34.023-35.318 64.839 0 33.565 32.13 62.35 57.03 71.512C101.565 478.913 186.524 512 218.415 512c31.792 0 116.392-32.888 139.977-109.977 27.689-8.785 57.23-40.199 57.23-72.19 0-29.6-14.761-54.82-35.298-64.5zM343.91 368.597c-8.466 0-15.776 5.936-17.55 14.223-13.804 65.237-86.69 93.324-107.945 93.324-21.254 0-94.14-28.087-107.945-93.384-1.634-7.729-9.502-13.525-17.37-14.203-8.068-.717-36.035-20.378-36.035-38.704 0-8.346 1.713-15.438 4.282-20.956 3.287 3.586 7.908 5.897 13.147 5.897 9.94 0 17.988-8.048 17.988-17.988v-15.219c.08-.558.378-1.036.418-1.613.498-8.546 1.594-16.574 2.968-24.342 29.561 18.465 74.281 37.05 122.567 37.05 48.306 0 93.026-18.605 122.587-37.09 1.374 7.788 2.47 15.836 2.948 24.342.04.558.319.996.398 1.534v15.318c0 9.94 8.048 17.988 17.988 17.988 5.08 0 9.621-2.132 12.888-5.518 2.65 5.458 4.542 12.39 4.542 20.577-.02 18.087-25.478 38.764-35.876 38.764z"/></svg>
+        </div>
+      </nav>
+      <section class="date" data-bind="visible: showDate">
+        <h3>Year: </h3>
+        <select class="" data-bind="options: allYears, value: policeYear" size="1"></select>
+        <h3>Month: </h3>
+        <select class="" data-bind="options: allMonths, value: policeMonth" size="1"></select>
+        <hr>
+      </section>
+      <section class="search-section" data-bind="visible: showSearch">
+        <form data-bind="submit: zoomToArea">
+          <input id="search-text" class="search-text search" type="text" data-bind='value: areaToZoom, valueUpdate: "afterkeydown"' placeholder="Enter an area">
+          <button class="search search-button" type="submit"><i class="fa fa-search"></i></button>
+        </form>
+        <hr>
+      </section>
+      <section id="info-section">
+        <div class="info">
+          <h3>Force: </h3>
+          <span data-bind="text: currentForce"></span>
+          <h3>Neighborhood: </h3>
+          <span data-bind="text: currentNeighborhood"></span>
+        </div>
+        <div class="info">
+          <h3>There was a total of: <span data-bind="text:currentTotalCrimes"></span> crimes</h3>
+        </div>
+        <ul class="crime-list" data-bind="foreach: currentCrimeCategories">
+          <li data-bind="text: category + ' ' +  count"></li>
+        </ul>
+        <hr>
+      </section>
+      <section class="filter-section" data-bind="visible: showFilter">
+        <h3>Filter Neighborhoods by Force:</h3>
+        <input data-bind="value: filter, valueUpdate: 'afterkeydown'" />
+        <hr>
+      </section>
+      <section id="neighborhood-section">
+        <h3>Neighborhoods:</h3>
+        <ul class="nh-list" data-bind="foreach: filteredAreas">
+          <li data-bind="text: force + ' ' + neighbourhood, click:$parent.moveTo"></li>
+        </ul>
+      </section>
+    </aside>
+    <div id="map"></div>
+  </main>
+    <script type="text/javascript">
+      function showMapError() {
+        alert("Google Maps could not be loaded, " +
+          "Check your internet connection.");
+      }
+    </script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?libraries=places,geometry,drawing&key=AIzaSyCvJYI51Btcpfq7CIj0XwDLh0FZ4dhSfs0&v=3&callback=initApp" onerror="showMapError()"></script>
+</body>
+</html>
