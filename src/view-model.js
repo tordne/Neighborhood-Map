@@ -185,7 +185,7 @@ export default function ViewModel() {
     // Push the marker to the markers array
     markerList.push(marker);
 
-    if( icon.name == "police") {
+    if (icon.name == "police") {
       // set the largeInfowindow
       var largeInfowindow = new google.maps.InfoWindow();
 

@@ -119,7 +119,9 @@ export async function getStreetLevelCrime(lat, lng, year, month) {
     // return the crimes array
     return crimes;
   } else {
-    crimes = [{error: "No crimes recorded"}];
+    crimes = [{
+      error: "No crimes recorded"
+    }];
 
   }
 }
