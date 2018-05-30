@@ -40,6 +40,17 @@ function initMap() {
 window.initApp = function() {
   initMap();
 
+  alert(
+    'UK Police Database\n\n' +
+    'When you "Click", "Pan" or "Zoom" and the map enters an unknown area, ' +
+    ' it will automaticallly retrieve the police data.\n' +
+    'You can use the search button to go to a specific area or postcode.\n' +
+    'The filter will slim the dynamically created list down to the specific ' +
+    'force requested e.g.: "metropolitan".\n\n' +
+    'The policeman in the navigation menu will show you the nearest police ' +
+    'stations.\n\n' +
+    'Have fun!');
+
   // Initialize the ModelView and bind it to the View.
   ko.applyBindings(new ViewModel());
 };
