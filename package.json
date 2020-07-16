@@ -48,6 +48,6 @@
   "dependencies": {
     "@babel/core": "^7.0.0-beta.46",
     "@babel/preset-env": "^7.0.0-beta.46",
-    "lodash": "^4.17.10"
+    "lodash": "^4.17.19"
   }
 }
